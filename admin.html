@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Scoreboard – Admin Panel</title>
+  <title>Scoreboard – Admin Panel + Animace</title>
 
   <style>
     body {
@@ -16,8 +16,10 @@
       align-items: center;
       gap: 25px;
       padding-top: 50px;
+      overflow-x: hidden;
     }
 
+    /* === SCOREBOARD === */
     #scoreboard {
       display: flex;
       align-items: center;
@@ -29,6 +31,15 @@
       height: 85px;
       width: 950px;
       padding: 0 25px;
+      transition: all 0.7s ease-in-out;
+      transform-origin: center;
+    }
+
+    /* === ANIMACE SKRYTÍ === */
+    #scoreboard.hidden {
+      opacity: 0;
+      transform: scale(0.2);
+      pointer-events: none;
     }
 
     .team {
@@ -63,6 +74,7 @@
     .main-time { font-size: 30px; font-weight: 700; }
     .period { font-size: 16px; font-weight: 700; opacity: 0.9; }
 
+    /* === PANEL === */
     #control-panel {
       width: 950px;
       background-color: #1a1a1a;
@@ -134,10 +146,21 @@
       gap: 10px;
       flex-wrap: wrap;
     }
+
+    .toggle-btn {
+      margin-top: 10px;
+      background-color: #28a745;
+    }
+
+    .toggle-btn.hide {
+      background-color: #dc3545;
+    }
+
   </style>
 </head>
 <body>
 
+  <!-- SCOREBOARD -->
   <div id="scoreboard">
     <div class="team">
       <img id="logo1" src="https://hcvlasim.cz/dist/images/logo.svg" alt="Logo vlevo">
@@ -206,13 +229,16 @@
       </div>
     </div>
 
+    <div class="section">
+      <h3>🎬 Zobrazení časomíry</h3>
+      <button id="toggleBtn" class="toggle-btn" onclick="toggleScoreboard()">Skrytí / Zobrazení</button>
+    </div>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
     import { getDatabase, ref, update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-    // 🔧 ZDE doplň své Firebase údaje:
 const firebaseConfig = {
   apiKey: "AIzaSyANQRaMe5QV3Onn3wkBvNx_AxgJA-81D-Q",
   authDomain: "hcvlasim.firebaseapp.com",
@@ -230,6 +256,7 @@ const firebaseConfig = {
     let totalSeconds = 20 * 60;
     let running = false;
     let timer = null;
+    let visible = true;
 
     function updateDisplay() {
       let m = Math.floor(totalSeconds / 60);
@@ -245,7 +272,8 @@ const firebaseConfig = {
         logo1: document.getElementById("logo1").src,
         logo2: document.getElementById("logo2").src,
         time: document.getElementById("main-time").textContent,
-        period: document.getElementById("period").textContent
+        period: document.getElementById("period").textContent,
+        visible: visible
       });
     }
 
@@ -305,6 +333,16 @@ const firebaseConfig = {
       document.getElementById("logo2").src = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjCi29DjHS7XSaP4DKucgDaUxqEXpF57WweQ&s";
       document.getElementById("period").textContent = "1. třetina";
       updateDisplay();
+      syncFirebase();
+    };
+
+    window.toggleScoreboard = function() {
+      const sb = document.getElementById("scoreboard");
+      const btn = document.getElementById("toggleBtn");
+      visible = !visible;
+      sb.classList.toggle("hidden");
+      btn.classList.toggle("hide");
+      btn.textContent = visible ? "🎬 Skrýt časomíru" : "🎬 Zobrazit časomíru";
       syncFirebase();
     };
 
