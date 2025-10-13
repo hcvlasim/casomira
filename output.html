@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Scoreboard Output</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: transparent;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    #scoreboard {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 80px;
+      background: linear-gradient(180deg, #1c1c1c, #0e0e0e);
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+      height: 85px;
+      width: 950px;
+      padding: 0 25px;
+      color: white;
+    }
+    .team {
+      background-color: white;
+      color: black;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 0 35px;
+      border-radius: 8px;
+    }
+    .team img {
+      height: 58px;
+      max-width: 70px;
+    }
+    .team span {
+      font-weight: bold;
+      font-size: 26px;
+    }
+    .time {
+      background: white;
+      color: black;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 25px;
+      border-radius: 8px;
+    }
+    .main-time {
+      font-size: 28px;
+      font-weight: bold;
+    }
+    .period {
+      font-size: 14px;
+      font-weight: bold;
+      opacity: 0.9;
+    }
+  </style>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "TVŮJ_API_KEY",
+      authDomain: "TVŮJ_PROJEKT.firebaseapp.com",
+      databaseURL: "https://TVŮJ_PROJEKT.firebaseio.com",
+      projectId: "TVŮJ_PROJEKT",
+      storageBucket: "TVŮJ_PROJEKT.appspot.com",
+      messagingSenderId: "TVŮJ_SENDER_ID",
+      appId: "TVŮJ_APP_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const scoreboardRef = ref(db, "scoreboard/");
+    onValue(scoreboardRef, (snapshot) => {
+      const data = snapshot.val();
+      if (!data) return;
+      document.getElementById("team1").textContent = data.team1 || "";
+      document.getElementById("team2").textContent = data.team2 || "";
+      document.getElementById("logo1").src = data.logo1 || "";
+      document.getElementById("logo2").src = data.logo2 || "";
+      document.getElementById("main-time").textContent = data.time || "00:00";
+      document.getElementById("period").textContent = data.period || "";
+    });
+  </script>
+</head>
+<body>
+
+  <div id="scoreboard">
+    <div class="team">
+      <img id="logo1" src="" alt="">
+      <span id="team1"></span>
+    </div>
+
+    <div class="time">
+      <div class="main-time" id="main-time">20:00</div>
+      <div class="period" id="period">1. třetina</div>
+    </div>
+
+    <div class="team">
+      <span id="team2"></span>
+      <img id="logo2" src="" alt="">
+    </div>
+  </div>
+
+</body>
+</html>
