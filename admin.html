@@ -1,23 +1,21 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Scoreboard – Přehledný ovládací panel</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scoreboard Admin</title>
+
   <style>
     body {
-      margin: 0;
-      background-color: #0d0d0d;
-      font-family: Arial, sans-serif;
+      background-color: #111;
       color: white;
+      font-family: Arial, sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 25px;
-      padding-top: 50px;
+      gap: 20px;
+      padding: 40px 0;
     }
-
-    /* === SCOREBOARD === */
     #scoreboard {
       display: flex;
       align-items: center;
@@ -30,9 +28,9 @@
       width: 950px;
       padding: 0 25px;
     }
-
     .team {
-      background-color: #fff;
+      background: white;
+      color: black;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -42,13 +40,11 @@
       border-radius: 8px;
       box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.25);
     }
-
-    .team img { height: 58px; max-width: 70px; object-fit: contain; }
-    .team span { font-weight: 700; font-size: 28px; color: #000; }
-
+    .team img { height: 58px; }
+    .team span { font-size: 28px; font-weight: bold; }
     .time {
-      background-color: #ffffff;
-      color: #000;
+      background: white;
+      color: black;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -57,93 +53,54 @@
       width: 140px;
       border-radius: 8px;
       font-weight: bold;
-      box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.25);
     }
+    .main-time { font-size: 30px; font-weight: bold; }
+    .period { font-size: 15px; font-weight: bold; opacity: 0.9; }
 
-    .main-time { font-size: 30px; font-weight: 700; }
-    .period { font-size: 16px; font-weight: 700; opacity: 0.9; }
-
-    /* === PANEL === */
-    #control-panel {
-      width: 950px;
-      background-color: #1a1a1a;
+    #panel {
+      background: #1a1a1a;
       border-radius: 10px;
       padding: 25px;
-      box-shadow: 0 0 12px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 0 12px rgba(0,0,0,0.5);
+      width: 950px;
       display: flex;
       flex-direction: column;
-      gap: 25px;
+      gap: 20px;
     }
-
-    .section {
-      background-color: #2b2b2b;
-      border-radius: 8px;
-      padding: 15px 20px;
-      box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-    }
-
-    .section h3 {
-      margin-top: 0;
-      margin-bottom: 10px;
-      border-left: 5px solid #007bff;
-      padding-left: 10px;
-      font-size: 18px;
+    h3 {
+      margin: 0 0 10px 0;
       color: #66b0ff;
+      border-left: 4px solid #007bff;
+      padding-left: 8px;
     }
-
-    .control-row {
+    .row {
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
       gap: 10px;
-      flex-wrap: wrap;
       margin-bottom: 10px;
     }
-
-    label {
-      font-weight: bold;
-      width: 120px;
-    }
-
     input, select, button {
       padding: 8px 12px;
       font-size: 15px;
       border: none;
       border-radius: 6px;
     }
-
-    input, select {
-      background-color: #fff;
-      color: #000;
-    }
-
-    .logo-input { width: 300px; }
-
+    input, select { background: #fff; color: #000; }
     button {
       cursor: pointer;
-      background-color: #007bff;
-      color: white;
+      background: #007bff;
+      color: #fff;
       font-weight: bold;
-      transition: 0.2s;
     }
-
-    button:hover {
-      background-color: #005fcc;
-    }
-
-    .button-group {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
+    button:hover { background: #005fcc; }
   </style>
 </head>
 <body>
-
-  <!-- SCOREBOARD -->
   <div id="scoreboard">
     <div class="team">
-      <img id="logo1" src="https://hcvlasim.cz/dist/images/logo.svg" alt="Logo vlevo">
-      <span id="team1-name">VLA</span>
+      <img id="logo1" src="https://hcvlasim.cz/dist/images/logo.svg" />
+      <span id="team1">VLA</span>
     </div>
 
     <div class="time">
@@ -152,52 +109,36 @@
     </div>
 
     <div class="team">
-      <span id="team2-name">BEN</span>
-      <img id="logo2" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjCi29DjHS7XSaP4DKucgDaUxqEXpF57WweQ&s" alt="Logo vpravo">
+      <span id="team2">BEN</span>
+      <img id="logo2" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjCi29DjHS7XSaP4DKucgDaUxqEXpF57WweQ&s" />
     </div>
   </div>
 
-  <!-- PANEL -->
-  <div id="control-panel">
-
-    <!-- Sekce 1: Týmy -->
-    <div class="section">
+  <div id="panel">
+    <div>
       <h3>🏒 Nastavení týmů</h3>
-      <div class="control-row">
-        <label>Tým vlevo:</label>
-        <input type="text" id="input-team1" value="VLA">
-        <label>Logo vlevo (URL):</label>
-        <input type="text" id="input-logo1" class="logo-input" value="https://hcvlasim.cz/dist/images/logo.svg">
+      <div class="row">
+        <label>Tým vlevo:</label><input id="input-team1" value="VLA" />
+        <label>Logo vlevo (URL):</label><input id="input-logo1" style="width:300px" value="https://hcvlasim.cz/dist/images/logo.svg" />
       </div>
-      <div class="control-row">
-        <label>Tým vpravo:</label>
-        <input type="text" id="input-team2" value="BEN">
-        <label>Logo vpravo (URL):</label>
-        <input type="text" id="input-logo2" class="logo-input" value="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjCi29DjHS7XSaP4DKucgDaUxqEXpF57WweQ&s">
+      <div class="row">
+        <label>Tým vpravo:</label><input id="input-team2" value="BEN" />
+        <label>Logo vpravo (URL):</label><input id="input-logo2" style="width:300px" value="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjCi29DjHS7XSaP4DKucgDaUxqEXpF57WweQ&s" />
       </div>
-      <button onclick="applyTeams()">💾 Uložit názvy a loga</button>
+      <button onclick="saveToFirebase()">💾 Uložit názvy a loga</button>
     </div>
 
-    <!-- Sekce 2: Časomíra -->
-    <div class="section">
+    <div>
       <h3>⏱️ Ovládání času</h3>
-      <div class="control-row">
-        <label>Čas:</label>
-        <input type="text" id="input-time" value="20:00">
-        <div class="button-group">
-          <button onclick="setTime()">Nastavit</button>
-          <button onclick="startTimer()">Spustit</button>
-          <button onclick="stopTimer()">Zastavit</button>
-          <button onclick="addSecond()">+1 sek</button>
-          <button onclick="removeSecond()">-1 sek</button>
-        </div>
+      <div class="row">
+        <label>Čas:</label><input id="input-time" value="20:00" />
+        <button onclick="saveToFirebase()">Nastavit</button>
       </div>
     </div>
 
-    <!-- Sekce 3: Třetina + Reset -->
-    <div class="section">
+    <div>
       <h3>⚙️ Další nastavení</h3>
-      <div class="control-row">
+      <div class="row">
         <label>Třetina:</label>
         <select id="input-period">
           <option>1. třetina</option>
@@ -205,87 +146,41 @@
           <option>3. třetina</option>
           <option>Prodloužení</option>
         </select>
-        <div class="button-group">
-          <button onclick="applyPeriod()">Uložit třetinu</button>
-          <button onclick="resetAll()">Reset všeho</button>
-        </div>
+        <button onclick="saveToFirebase()">Uložit třetinu</button>
       </div>
     </div>
-
   </div>
 
-  <script>
-    let timeDisplay = document.getElementById("main-time");
-    let timer = null;
-    let totalSeconds = 20 * 60;
-    let running = false;
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getDatabase, ref, update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-    function updateDisplay() {
-      let minutes = Math.floor(totalSeconds / 60);
-      let seconds = totalSeconds % 60;
-      timeDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-    }
+const firebaseConfig = {
+  apiKey: "AIzaSyANQRaMe5QV3Onn3wkBvNx_AxgJA-81D-Q",
+  authDomain: "hcvlasim.firebaseapp.com",
+  databaseURL: "https://hcvlasim-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "hcvlasim",
+  storageBucket: "hcvlasim.firebasestorage.app",
+  messagingSenderId: "384166386163",
+  appId: "1:384166386163:web:79d1ca50cfd973b6deda86",
+  measurementId: "G-WRE3MQ4ZEX"
+};
 
-    function startTimer() {
-      if (!running) {
-        running = true;
-        timer = setInterval(() => {
-          if (totalSeconds > 0) {
-            totalSeconds--;
-            updateDisplay();
-          }
-        }, 1000);
-      }
-    }
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
 
-    function stopTimer() {
-      running = false;
-      clearInterval(timer);
-    }
-
-    function addSecond() {
-      totalSeconds++;
-      updateDisplay();
-    }
-
-    function removeSecond() {
-      if (totalSeconds > 0) totalSeconds--;
-      updateDisplay();
-    }
-
-    function setTime() {
-      const val = document.getElementById("input-time").value;
-      const parts = val.split(":");
-      const min = parseInt(parts[0]) || 0;
-      const sec = parseInt(parts[1]) || 0;
-      totalSeconds = min * 60 + sec;
-      updateDisplay();
-    }
-
-    function applyTeams() {
-      document.getElementById("team1-name").textContent = document.getElementById("input-team1").value;
-      document.getElementById("team2-name").textContent = document.getElementById("input-team2").value;
-      document.getElementById("logo1").src = document.getElementById("input-logo1").value;
-      document.getElementById("logo2").src = document.getElementById("input-logo2").value;
-    }
-
-    function applyPeriod() {
-      document.getElementById("period").textContent = document.getElementById("input-period").value;
-    }
-
-    function resetAll() {
-      stopTimer();
-      totalSeconds = 20 * 60;
-      updateDisplay();
-      document.getElementById("period").textContent = "1. třetina";
-      document.getElementById("team1-name").textContent = "VLA";
-      document.getElementById("team2-name").textContent = "BEN";
-      document.getElementById("logo1").src = "https://hcvlasim.cz/dist/images/logo.svg";
-      document.getElementById("logo2").src = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjCi29DjHS7XSaP4DKucgDaUxqEXpF57WweQ&s";
-    }
-
-    updateDisplay();
+    window.saveToFirebase = function () {
+      const data = {
+        team1: document.getElementById("input-team1").value,
+        logo1: document.getElementById("input-logo1").value,
+        team2: document.getElementById("input-team2").value,
+        logo2: document.getElementById("input-logo2").value,
+        time: document.getElementById("input-time").value,
+        period: document.getElementById("input-period").value
+      };
+      update(ref(db, "scoreboard/"), data);
+      console.log("✅ Odesláno do Firebase:", data);
+    };
   </script>
-
 </body>
 </html>
