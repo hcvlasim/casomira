@@ -3,17 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ovládací panel – TELH časomíra s tresty</title>
+  <title>Admin panel – TELH časomíra</title>
   <style>
     body {
       background-color: #0d1117;
       color: white;
       font-family: Arial, sans-serif;
       margin: 0;
+      padding: 20px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 30px;
+      overflow: hidden;
     }
 
     h1 {
@@ -21,38 +22,50 @@
       margin-bottom: 10px;
     }
 
+    .row {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 15px;
+    }
+
     .section {
       background-color: #1a1a1a;
       border-radius: 8px;
-      padding: 20px;
-      margin-bottom: 20px;
-      width: 700px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+      padding: 15px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.4);
+      width: 320px;
+      flex-shrink: 0;
     }
 
     h2 {
       color: #66b0ff;
-      border-left: 5px solid #007bff;
-      padding-left: 10px;
+      border-left: 4px solid #007bff;
+      padding-left: 8px;
+      margin-top: 0;
+      margin-bottom: 10px;
+      font-size: 17px;
     }
 
     label {
       display: inline-block;
-      width: 130px;
-      margin: 5px 0;
+      width: 100px;
+      font-size: 14px;
     }
 
     input, select, button {
-      padding: 7px 10px;
-      border-radius: 4px;
+      padding: 5px 8px;
+      border-radius: 5px;
       border: none;
-      margin: 4px;
-      font-size: 15px;
+      margin: 3px 0;
+      font-size: 14px;
     }
 
     input, select {
       background: #fff;
       color: #000;
+      width: 140px;
     }
 
     button {
@@ -61,17 +74,12 @@
       font-weight: bold;
       cursor: pointer;
       transition: 0.2s;
+      width: 100%;
+      margin-top: 5px;
     }
 
     button:hover {
       background-color: #005fcc;
-    }
-
-    .button-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 10px;
     }
 
     .reset-btn {
@@ -90,126 +98,107 @@
       background-color: #ff4b4b;
     }
 
-    .penalty-controls {
+    .small-row {
       display: flex;
-      flex-direction: column;
-      gap: 6px;
+      justify-content: space-between;
+      gap: 5px;
+      margin-top: 5px;
     }
 
-    .team-penalty {
-      background: #111;
-      border-radius: 6px;
-      padding: 10px;
-      margin-bottom: 10px;
+    .button-group button {
+      width: 47%;
     }
 
-    .team-penalty h3 {
-      margin-top: 0;
-      color: #66b0ff;
-    }
-
-    .penalty-buttons button {
-      margin-right: 6px;
+    .footer-row {
+      display: flex;
+      gap: 15px;
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
 
-  <h1>🏒 Ovládací panel – Časomíra s tresty</h1>
+  <h1>🏒 Ovládací panel – Časomíra TELH</h1>
 
-  <!-- 🏁 Týmy -->
-  <div class="section">
-    <h2>🏁 Týmy</h2>
-    <label>Tým vlevo:</label>
-    <input id="team1" value="VLA">
-    <label>Logo vlevo (URL):</label>
-    <input id="logo1" style="width:300px" value="https://hcvlasim.cz/dist/images/logo.svg"><br>
-    <label>Tým vpravo:</label>
-    <input id="team2" value="BEN">
-    <label>Logo vpravo (URL):</label>
-    <input id="logo2" style="width:300px" value="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjCi29DjHS7XSaP4DKucgDaUxqEXpF57WweQ&s"><br>
-    <button onclick="updateTeams()">💾 Uložit týmy</button>
-  </div>
-
-  <!-- 🟠 Skóre -->
-  <div class="section">
-    <h2>🟠 Skóre</h2>
-    <label>Skóre vlevo:</label>
-    <input id="score1" type="number" value="0" style="width:60px">
-    <label>Skóre vpravo:</label>
-    <input id="score2" type="number" value="0" style="width:60px"><br>
-    <button onclick="updateScore()">💾 Uložit skóre</button>
-  </div>
-
-  <!-- ⏱️ Čas -->
-  <div class="section">
-    <h2>⏱️ Čas</h2>
-    <label>Čas:</label>
-    <input id="timeInput" value="20:00" style="width:100px"><br>
-    <div class="button-group">
+  <!-- Horní sekce: čas, skóre, třetina -->
+  <div class="row">
+    <!-- Čas -->
+    <div class="section">
+      <h2>⏱️ Čas</h2>
+      <input id="timeInput" value="20:00" style="width:100%; text-align:center; font-weight:bold;"><br>
+      <div class="small-row">
+        <button onclick="startTimer()">Spustit</button>
+        <button onclick="stopTimer()">Zastavit</button>
+      </div>
+      <div class="small-row">
+        <button onclick="plusSecond()">+1 sek</button>
+        <button onclick="minusSecond()">-1 sek</button>
+      </div>
       <button onclick="setTime()">Nastavit</button>
-      <button onclick="startTimer()">Spustit</button>
-      <button onclick="stopTimer()">Zastavit</button>
-      <button onclick="plusSecond()">+1 sek</button>
-      <button onclick="minusSecond()">-1 sek</button>
+    </div>
+
+    <!-- Skóre -->
+    <div class="section">
+      <h2>🟠 Skóre</h2>
+      <label>VLA:</label><input id="score1" type="number" value="0"><br>
+      <label>BEN:</label><input id="score2" type="number" value="0"><br>
+      <button onclick="updateScore()">💾 Uložit skóre</button>
+    </div>
+
+    <!-- Třetina -->
+    <div class="section">
+      <h2>📘 Třetina</h2>
+      <select id="period" style="width:100%;">
+        <option>1.</option>
+        <option>2.</option>
+        <option>3.</option>
+        <option>OT</option>
+      </select>
+      <button onclick="updatePeriod()">💾 Uložit třetinu</button>
     </div>
   </div>
 
-  <!-- 📘 Třetina -->
-  <div class="section">
-    <h2>📘 Třetina</h2>
-    <select id="period">
-      <option>1.</option>
-      <option>2.</option>
-      <option>3.</option>
-      <option>OT</option>
-    </select>
-    <button onclick="updatePeriod()">💾 Uložit třetinu</button>
-  </div>
+  <!-- Tresty -->
+  <div class="row">
+    <div class="section">
+      <h2>🚨 Trest – VLA</h2>
+      <select id="penalty1_duration" style="width:100%;">
+        <option value="120">2 minuty</option>
+        <option value="240">4 minuty</option>
+        <option value="300">5 minut</option>
+      </select>
+      <button onclick="startPenalty(1)">Začít trest</button>
+      <button onclick="cancelPenalty(1)" class="reset-btn">Zrušit</button>
+    </div>
 
-  <!-- 🚨 TRESTY -->
-  <div class="section">
-    <h2>🚨 Tresty</h2>
-
-    <div class="penalty-controls">
-      <div class="team-penalty">
-        <h3>Trest – VLA</h3>
-        <div>
-          <select id="penalty1_duration">
-            <option value="120">2 minuty</option>
-            <option value="240">4 minuty</option>
-            <option value="300">5 minut</option>
-          </select>
-          <button onclick="startPenalty(1)">Začít trest</button>
-          <button onclick="cancelPenalty(1)">Zrušit</button>
-        </div>
-      </div>
-
-      <div class="team-penalty">
-        <h3>Trest – BEN</h3>
-        <div>
-          <select id="penalty2_duration">
-            <option value="120">2 minuty</option>
-            <option value="240">4 minuty</option>
-            <option value="300">5 minut</option>
-          </select>
-          <button onclick="startPenalty(2)">Začít trest</button>
-          <button onclick="cancelPenalty(2)">Zrušit</button>
-        </div>
-      </div>
+    <div class="section">
+      <h2>🚨 Trest – BEN</h2>
+      <select id="penalty2_duration" style="width:100%;">
+        <option value="120">2 minuty</option>
+        <option value="240">4 minuty</option>
+        <option value="300">5 minut</option>
+      </select>
+      <button onclick="startPenalty(2)">Začít trest</button>
+      <button onclick="cancelPenalty(2)" class="reset-btn">Zrušit</button>
     </div>
   </div>
 
-  <!-- 🎬 Zobrazení -->
-  <div class="section">
-    <h2>🎬 Zobrazení</h2>
-    <button id="toggleBtn" class="toggle-btn" onclick="toggleVisibility()">🎬 Skrýt časomíru</button>
-  </div>
+  <!-- Dolní sekce: týmy, viditelnost, reset -->
+  <div class="footer-row">
+    <div class="section">
+      <h2>🏁 Týmy</h2>
+      <label>Vlevo:</label><input id="team1" value="VLA"><br>
+      <label>Logo:</label><input id="logo1" value="https://hcvlasim.cz/dist/images/logo.svg"><br>
+      <label>Vpravo:</label><input id="team2" value="BEN"><br>
+      <label>Logo:</label><input id="logo2" value="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjCi29DjHS7XSaP4DKucgDaUxqEXpF57WweQ&s"><br>
+      <button onclick="updateTeams()">💾 Uložit týmy</button>
+    </div>
 
-  <!-- ⚙️ Reset -->
-  <div class="section">
-    <h2>⚙️ Další</h2>
-    <button class="reset-btn" onclick="resetAll()">♻️ Reset všeho</button>
+    <div class="section">
+      <h2>⚙️ Další</h2>
+      <button id="toggleBtn" class="toggle-btn" onclick="toggleVisibility()">🎬 Skrýt časomíru</button>
+      <button class="reset-btn" onclick="resetAll()">♻️ Reset všeho</button>
+    </div>
   </div>
 
   <!-- 🔥 Firebase logika -->
@@ -217,16 +206,15 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
     import { getDatabase, ref, update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyANQRaMe5QV3Onn3wkBvNx_AxgJA-81D-Q",
-  authDomain: "hcvlasim.firebaseapp.com",
-  databaseURL: "https://hcvlasim-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "hcvlasim",
-  storageBucket: "hcvlasim.firebasestorage.app",
-  messagingSenderId: "384166386163",
-  appId: "1:384166386163:web:79d1ca50cfd973b6deda86",
-  measurementId: "G-WRE3MQ4ZEX"
-};
+    const firebaseConfig = {
+      apiKey: "TVŮJ_API_KEY",
+      authDomain: "TVŮJ_PROJEKT.firebaseapp.com",
+      databaseURL: "https://TVŮJ_PROJEKT-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "TVŮJ_PROJEKT",
+      storageBucket: "TVŮJ_PROJEKT.appspot.com",
+      messagingSenderId: "XXXXXXXXXX",
+      appId: "1:XXXXXXXXXX:web:XXXXXXXXXX"
+    };
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
@@ -235,138 +223,89 @@ const firebaseConfig = {
     let timer;
     let running = false;
     let visible = true;
-    let penaltyTimers = { 1: null, 2: null };
     let penaltyTimes = { 1: 0, 2: 0 };
 
-    function sync(data) {
-      update(ref(db, "scoreboard/"), data);
-    }
+    function sync(data) { update(ref(db, "scoreboard/"), data); }
 
     function timeToText(t) {
       const m = Math.floor(t / 60);
       const s = t % 60;
-      return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+      return `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
     }
 
     // 🏒 Týmy
-    window.updateTeams = function() {
-      sync({
-        team1: team1.value,
-        team2: team2.value,
-        logo1: logo1.value,
-        logo2: logo2.value
-      });
-    };
+    window.updateTeams = () => sync({
+      team1: team1.value, team2: team2.value, logo1: logo1.value, logo2: logo2.value
+    });
 
     // 🟠 Skóre
-    window.updateScore = function() {
-      sync({
-        score1: score1.value,
-        score2: score2.value
-      });
-    };
+    window.updateScore = () => sync({ score1: score1.value, score2: score2.value });
 
     // 📘 Třetina
-    window.updatePeriod = function() {
-      sync({
-        period: period.value
-      });
-    };
+    window.updatePeriod = () => sync({ period: period.value });
 
-    // ⏱️ Čas
-    window.setTime = function() {
-      const parts = timeInput.value.split(":");
-      totalSeconds = parseInt(parts[0]) * 60 + parseInt(parts[1]);
+    // Čas
+    window.setTime = () => {
+      const [m, s] = timeInput.value.split(":").map(Number);
+      totalSeconds = m * 60 + s;
       sync({ time: timeToText(totalSeconds) });
     };
 
-    window.plusSecond = function() {
-      totalSeconds++;
-      sync({ time: timeToText(totalSeconds) });
-    };
+    window.plusSecond = () => { totalSeconds++; sync({ time: timeToText(totalSeconds) }); };
+    window.minusSecond = () => { if (totalSeconds>0) totalSeconds--; sync({ time: timeToText(totalSeconds) }); };
 
-    window.minusSecond = function() {
-      if (totalSeconds > 0) totalSeconds--;
-      sync({ time: timeToText(totalSeconds) });
-    };
-
-    window.startTimer = function() {
+    window.startTimer = () => {
       if (!running) {
         running = true;
         timer = setInterval(() => {
-          if (totalSeconds > 0) {
-            totalSeconds--;
-            sync({ time: timeToText(totalSeconds) });
-          }
+          if (totalSeconds>0) { totalSeconds--; sync({ time: timeToText(totalSeconds) }); }
 
-          // ubíhají tresty
-          for (let i = 1; i <= 2; i++) {
-            if (penaltyTimes[i] > 0) {
+          for (let i=1;i<=2;i++) {
+            if (penaltyTimes[i]>0) {
               penaltyTimes[i]--;
-              sync({
-                [`penalty${i}_time`]: timeToText(penaltyTimes[i]),
-              });
-              if (penaltyTimes[i] === 0) {
-                sync({
-                  [`penalty${i}_active`]: false,
-                });
-              }
+              sync({ [`penalty${i}_time`]: timeToText(penaltyTimes[i]) });
+              if (penaltyTimes[i]===0) sync({ [`penalty${i}_active`]: false });
             }
           }
-        }, 1000);
+        },1000);
       }
     };
-
-    window.stopTimer = function() {
-      running = false;
-      clearInterval(timer);
-    };
+    window.stopTimer = () => { running=false; clearInterval(timer); };
 
     // 🚨 Tresty
-    window.startPenalty = function(team) {
-      const select = document.getElementById(`penalty${team}_duration`);
-      penaltyTimes[team] = parseInt(select.value);
-
+    window.startPenalty = (team) => {
+      const other = team===1?2:1;
+      penaltyTimes[team]=parseInt(document.getElementById(`penalty${team}_duration`).value);
       sync({
         [`penalty${team}_active`]: true,
         [`penalty${team}_time`]: timeToText(penaltyTimes[team]),
+        [`penalty${other}_active`]: false
       });
     };
-
-    window.cancelPenalty = function(team) {
-      penaltyTimes[team] = 0;
-      sync({
-        [`penalty${team}_active`]: false,
-        [`penalty${team}_time`]: "00:00",
-      });
+    window.cancelPenalty = (team) => {
+      penaltyTimes[team]=0;
+      sync({ [`penalty${team}_active`]: false, [`penalty${team}_time`]: "00:00" });
     };
 
     // 🎬 Viditelnost
-    window.toggleVisibility = function() {
-      visible = !visible;
-      const btn = document.getElementById("toggleBtn");
-      sync({ visible: visible });
-      btn.textContent = visible ? "🎬 Skrýt časomíru" : "🎬 Zobrazit časomíru";
-      btn.classList.toggle("hide", !visible);
+    window.toggleVisibility = () => {
+      visible=!visible;
+      const btn=document.getElementById("toggleBtn");
+      sync({ visible });
+      btn.textContent=visible?"🎬 Skrýt časomíru":"🎬 Zobrazit časomíru";
+      btn.classList.toggle("hide",!visible);
     };
 
     // ♻️ Reset
-    window.resetAll = function() {
-      totalSeconds = 20 * 60;
+    window.resetAll = () => {
+      totalSeconds=20*60;
       sync({
-        team1: "VLA",
-        team2: "BEN",
-        logo1: "https://hcvlasim.cz/dist/images/logo.svg",
-        logo2: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjCi29DjHS7XSaP4DKucgDaUxqEXpF57WweQ&s",
-        score1: 0,
-        score2: 0,
-        time: "20:00",
-        period: "1.",
-        visible: true,
-        penalty1_active: false,
-        penalty2_active: false,
-        penalty1_time: "00:00",
-        penalty2_time: "00:00"
+        team1:"VLA",team2:"BEN",
+        logo1:"https://hcvlasim.cz/dist/images/logo.svg",
+        logo2:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjCi29DjHS7XSaP4DKucgDaUxqEXpF57WweQ&s",
+        score1:0,score2:0,time:"20:00",period:"1.",visible:true,
+        penalty1_active:false,penalty2_active:false,
+        penalty1_time:"00:00",penalty2_time:"00:00"
       });
     };
   </script>
