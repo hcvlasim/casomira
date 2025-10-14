@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Scoreboard – TELH styl (přesné vteřiny)</title>
+  <title>Časomíra – Výstup</title>
   <style>
     body {
       margin: 0;
-      background: #0d1117;
+      background-color: #000;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -20,11 +20,17 @@
       font-family: Arial, sans-serif;
       font-weight: bold;
       overflow: hidden;
-      box-shadow: 0 0 10px rgba(0,0,0,0.4);
+      transition: all 0.6s ease-in-out;
+      transform-origin: center;
+    }
+
+    #scoreboard.hide {
+      transform: scale(0);
+      opacity: 0;
     }
 
     .league-logo {
-      background: white;
+      background: #fff;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -57,10 +63,6 @@
       font-size: 20px;
       height: 40px;
       border-bottom: 2px solid white;
-    }
-
-    .info div:last-child {
-      border-bottom: none;
     }
 
     .teams {
@@ -113,10 +115,6 @@
       font-weight: 800;
       border-bottom: 2px solid white;
     }
-
-    .score:last-child {
-      border-bottom: none;
-    }
   </style>
 </head>
 <body>
@@ -132,14 +130,12 @@
 
     <div class="teams">
       <div class="team">
-        <img id="logo1" src="https://hcvlasim.cz/dist/images/logo.svg" alt="Vlašim">
+        <img id="logo1" src="https://hcvlasim.cz/dist/images/logo.svg" alt="VLA">
         <span id="team1" class="abbr">VLA</span>
       </div>
-
       <div class="divider"></div>
-
       <div class="team">
-        <img id="logo2" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjCi29DjHS7XSaP4DKucgDaUxqEXpF57WweQ&s" alt="Benešov">
+        <img id="logo2" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjCi29DjHS7XSaP4DKucgDaUxqEXpF57WweQ&s" alt="BEN">
         <span id="team2" class="abbr">BEN</span>
       </div>
     </div>
@@ -161,74 +157,79 @@
       projectId: "hcvlasim",
       storageBucket: "hcvlasim.firebasestorage.app",
       messagingSenderId: "384166386163",
-      appId: "1:384166386163:web:79d1ca50cfd973b6deda86",
-      measurementId: "G-WRE3MQ4ZEX"
+      appId: "1:384166386163:web:79d1ca50cfd973b6deda86"
     };
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
+    const sbRef = ref(db, "scoreboard/");
 
-    const refs = {
+    const els = {
+      board: document.getElementById("scoreboard"),
       team1: document.getElementById("team1"),
       team2: document.getElementById("team2"),
       logo1: document.getElementById("logo1"),
       logo2: document.getElementById("logo2"),
       score1: document.getElementById("score1"),
       score2: document.getElementById("score2"),
+      period: document.getElementById("period"),
       time: document.getElementById("time"),
-      period: document.getElementById("period")
     };
 
-    let localTimer = null;
-    let remainingSeconds = 0;
+    let localRunning = false;
+    let localSec = 0;
+    let raf;
 
-    function parseTimeToSeconds(t) {
-      const [m, s] = (t || "00:00").split(":").map(Number);
-      return m * 60 + (s || 0);
-    }
+    const parseTime = t => {
+      const [m,s] = (t||"00:00").split(":").map(Number);
+      return m*60 + (s||0);
+    };
 
-    function formatSeconds(sec) {
-      if (sec < 0) sec = 0;
-      const m = Math.floor(sec / 60);
-      const s = Math.floor(sec % 60);
-      return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
-    }
+    const formatTime = s => {
+      const m = Math.floor(s/60);
+      const sec = Math.floor(s%60);
+      return `${String(m).padStart(2,"0")}:${String(sec).padStart(2,"0")}`;
+    };
 
-    function startAccurateTimer() {
-      const start = performance.now();
-      const startSec = remainingSeconds;
-      cancelAnimationFrame(localTimer);
-
-      function tick(now) {
-        const elapsed = (now - start) / 1000;
-        const newSec = startSec - elapsed;
-        if (newSec <= 0) {
-          refs.time.textContent = "00:00";
-          return;
-        }
-        refs.time.textContent = formatSeconds(newSec);
-        localTimer = requestAnimationFrame(tick);
+    function tick(now){
+      if(!localRunning) return;
+      localSec -= 1/60;
+      if(localSec <= 0){
+        localRunning = false;
+        localSec = 0;
       }
-
-      localTimer = requestAnimationFrame(tick);
+      els.time.textContent = formatTime(localSec);
+      raf = requestAnimationFrame(tick);
     }
 
-    onValue(ref(db, "scoreboard/"), (snapshot) => {
-      const data = snapshot.val();
-      if (!data) return;
+    onValue(sbRef, snap => {
+      const data = snap.val();
+      if(!data) return;
+      els.team1.textContent = data.team1 || "VLA";
+      els.team2.textContent = data.team2 || "BEN";
+      els.logo1.src = data.logo1 || els.logo1.src;
+      els.logo2.src = data.logo2 || els.logo2.src;
+      els.score1.textContent = data.score1 ?? "0";
+      els.score2.textContent = data.score2 ?? "0";
+      els.period.textContent = data.period || "1.";
 
-      refs.team1.textContent = data.team1 || "VLA";
-      refs.team2.textContent = data.team2 || "BEN";
-      refs.logo1.src = data.logo1 || refs.logo1.src;
-      refs.logo2.src = data.logo2 || refs.logo2.src;
-      refs.score1.textContent = data.score1 ?? "0";
-      refs.score2.textContent = data.score2 ?? "0";
-      refs.period.textContent = data.period || "1.";
+      if(data.animation === "hide") els.board.classList.add("hide");
+      else els.board.classList.remove("hide");
 
-      // ⏱️ Přesný čas
-      const timeString = data.time || "20:00";
-      remainingSeconds = parseTimeToSeconds(timeString);
-      startAccurateTimer();
+      const time = data.time || "20:00";
+      const newSec = parseTime(time);
+
+      if(data.running && !localRunning){
+        localSec = newSec;
+        localRunning = true;
+        cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(tick);
+      }
+      if(!data.running && localRunning){
+        localRunning = false;
+        cancelAnimationFrame(raf);
+        els.time.textContent = formatTime(newSec);
+      }
     });
   </script>
 </body>
