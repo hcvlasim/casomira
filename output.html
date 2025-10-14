@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Scoreboard – TELH styl s tresty</title>
+  <title>Scoreboard – TELH styl s tresty (final)</title>
 
   <style>
     body {
@@ -144,7 +144,7 @@
       justify-content: center;
       background: #007bff;
       width: 70px;
-      transform: translateX(100%);
+      transform: translateX(-100%);
       transition: all 0.5s ease-in-out;
       opacity: 0;
     }
@@ -164,7 +164,7 @@
       border-bottom: none;
     }
 
-    /* Efekt "swipe zleva" při zobrazení */
+    /* Aktivní animace "swipe zleva doprava" */
     .penalties.active {
       transform: translateX(0);
       opacity: 1;
@@ -206,7 +206,7 @@
     </div>
 
     <!-- Tresty -->
-    <div class="penalties">
+    <div class="penalties" id="penalties">
       <div id="penalty1" class="penalty">00:00</div>
       <div id="penalty2" class="penalty">00:00</div>
     </div>
@@ -232,7 +232,7 @@ const firebaseConfig = {
     const db = getDatabase(app);
 
     const sb = document.getElementById("scoreboard");
-    const penalties = document.querySelector(".penalties");
+    const penalties = document.getElementById("penalties");
     const refs = {
       team1: document.getElementById("team1"),
       team2: document.getElementById("team2"),
@@ -246,7 +246,6 @@ const firebaseConfig = {
       penalty2: document.getElementById("penalty2")
     };
 
-    // 🔄 Poslouchá změny v databázi
     onValue(ref(db, "scoreboard/"), (snapshot) => {
       const data = snapshot.val();
       if (!data) return;
@@ -266,21 +265,31 @@ const firebaseConfig = {
       if (data.period) refs.period.textContent = data.period;
 
       // 🎬 Viditelnost celé časomíry
-      if (data.visible === false) {
-        sb.classList.add("hidden");
+      if (data.visible === false) sb.classList.add("hidden");
+      else sb.classList.remove("hidden");
+
+      // 🚨 TRESTY
+      let anyActive = false;
+
+      // když má trest jen jeden tým → zobraz jen jeho
+      if (data.penalty1_active) {
+        refs.penalty1.textContent = data.penalty1_time || "00:00";
+        refs.penalty1.style.display = "flex";
+        refs.penalty2.style.display = "none";
+        anyActive = true;
+      } else if (data.penalty2_active) {
+        refs.penalty2.textContent = data.penalty2_time || "00:00";
+        refs.penalty1.style.display = "none";
+        refs.penalty2.style.display = "flex";
+        anyActive = true;
       } else {
-        sb.classList.remove("hidden");
+        refs.penalty1.style.display = "none";
+        refs.penalty2.style.display = "none";
       }
 
-      // 🚨 Tresty
-      if (data.penalty1_active || data.penalty2_active) {
-        penalties.classList.add("active");
-      } else {
-        penalties.classList.remove("active");
-      }
-
-      if (data.penalty1_time) refs.penalty1.textContent = data.penalty1_time;
-      if (data.penalty2_time) refs.penalty2.textContent = data.penalty2_time;
+      // zobraz / skryj celý box s animací
+      if (anyActive) penalties.classList.add("active");
+      else penalties.classList.remove("active");
     });
   </script>
 </body>
