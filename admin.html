@@ -3,31 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin panel – Hokejová časomíra</title>
+  <title>Admin panel – Časomíra</title>
   <style>
     body {
       margin: 0;
-      background: #0d1117;
-      color: white;
+      background-color: #0d1117;
+      color: #fff;
       font-family: Arial, sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
-      min-height: 100vh;
       padding: 30px;
     }
 
     h1 {
       color: #00aaff;
       margin-bottom: 20px;
-      text-shadow: 0 0 8px #00aaff;
+      text-shadow: 0 0 10px #00aaff;
     }
 
     .panel {
       background: #111;
-      border-radius: 12px;
-      box-shadow: 0 0 15px rgba(0, 170, 255, 0.4);
       padding: 25px 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0,170,255,0.3);
       width: 500px;
     }
 
@@ -42,7 +41,7 @@
       width: 100%;
       padding: 8px;
       font-size: 16px;
-      background: #1b1f27;
+      background: #1a1f25;
       color: white;
       border: 1px solid #333;
       border-radius: 6px;
@@ -50,23 +49,11 @@
       outline: none;
     }
 
-    input:focus {
-      border-color: #00aaff;
-      box-shadow: 0 0 6px #00aaff;
-    }
-
-    .row {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-    }
-
     .buttons {
       display: flex;
       justify-content: space-between;
-      gap: 10px;
-      flex-wrap: wrap;
       margin-top: 20px;
+      gap: 10px;
     }
 
     button {
@@ -75,10 +62,10 @@
       border-radius: 6px;
       padding: 10px;
       font-size: 16px;
-      font-weight: bold;
       color: white;
       cursor: pointer;
-      transition: background 0.2s ease;
+      font-weight: bold;
+      transition: background 0.2s;
     }
 
     .start { background: #00c853; }
@@ -86,12 +73,6 @@
     .reset { background: #1976d2; }
     .save { background: #ff8c00; }
     .toggle { background: #9c27b0; }
-
-    .start:hover { background: #00e676; }
-    .stop:hover { background: #f44336; }
-    .reset:hover { background: #2196f3; }
-    .save:hover { background: #ffa726; }
-    .toggle:hover { background: #ba68c8; }
   </style>
 </head>
 <body>
@@ -99,38 +80,22 @@
 
   <div class="panel">
     <label>🕒 Čas (MM:SS)</label>
-    <input id="time" type="text" value="20:00">
+    <input id="time" value="20:00">
 
     <label>📅 Třetina</label>
-    <input id="period" type="text" value="1. třetina">
+    <input id="period" value="1. třetina">
 
-    <div class="row">
-      <div>
-        <label>🏒 Tým 1</label>
-        <input id="team1" type="text" value="VLA">
-      </div>
-      <div>
-        <label>Skóre 1</label>
-        <input id="score1" type="number" value="0">
-      </div>
-    </div>
+    <label>🏒 Tým 1</label>
+    <input id="team1" value="VLA">
 
-    <div class="row">
-      <div>
-        <label>🏒 Tým 2</label>
-        <input id="team2" type="text" value="BEN">
-      </div>
-      <div>
-        <label>Skóre 2</label>
-        <input id="score2" type="number" value="0">
-      </div>
-    </div>
+    <label>🏒 Tým 2</label>
+    <input id="team2" value="BEN">
 
-    <label>🔗 Logo týmu 1 (URL)</label>
-    <input id="logo1" type="text" value="https://hcvlasim.cz/dist/images/logo.svg">
+    <label>Skóre 1</label>
+    <input id="score1" type="number" value="0">
 
-    <label>🔗 Logo týmu 2 (URL)</label>
-    <input id="logo2" type="text" value="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjCi29DjHS7XSaP4DKucgDaUxqEXpF57WweQ&s">
+    <label>Skóre 2</label>
+    <input id="score2" type="number" value="0">
 
     <div class="buttons">
       <button id="start" class="start">▶️ Spustit</button>
@@ -140,13 +105,13 @@
 
     <div class="buttons">
       <button id="save" class="save">💾 Uložit</button>
-      <button id="toggleAnim" class="toggle">🎬 Animace</button>
+      <button id="toggle" class="toggle">🎬 Animace</button>
     </div>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-    import { getDatabase, ref, update, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+    import { getDatabase, ref, update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyANQRaMe5QV3Onn3wkBvNx_AxgJA-81D-Q",
@@ -160,61 +125,41 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    const refScore = ref(db, "scoreboard/");
+    const sb = ref(db, "scoreboard/");
 
-    // uložit základní data
-    document.getElementById("save").addEventListener("click", () => {
-      update(refScore, {
+    const getTime = () => document.getElementById("time").value;
+
+    document.getElementById("save").onclick = () => {
+      update(sb, {
         team1: team1.value,
         team2: team2.value,
         score1: parseInt(score1.value) || 0,
         score2: parseInt(score2.value) || 0,
-        period: period.value,
-        logo1: logo1.value,
-        logo2: logo2.value
+        period: period.value
       });
       alert("✅ Uloženo!");
-    });
+    };
 
-    // Spustit
-    document.getElementById("start").addEventListener("click", async () => {
-      const snap = await get(refScore);
-      const current = snap.val() || {};
-      update(refScore, {
-        running: true,
-        startTimestamp: Date.now(),
-        startTime: current.time || "20:00"
-      });
-    });
+    document.getElementById("start").onclick = () => {
+      update(sb, { running: true, time: getTime() });
+    };
 
-    // Zastavit (uloží aktuální čas)
-    document.getElementById("stop").addEventListener("click", async () => {
-      const snap = await get(refScore);
-      const current = snap.val() || {};
-      update(refScore, {
-        running: false,
-        time: current.time || "00:00"
-      });
-    });
+    document.getElementById("stop").onclick = () => {
+      update(sb, { running: false, time: getTime() });
+    };
 
-    // Reset
-    document.getElementById("reset").addEventListener("click", () => {
-      update(refScore, {
-        time: "20:00",
-        running: false
-      });
-    });
+    document.getElementById("reset").onclick = () => {
+      update(sb, { running: false, time: "20:00" });
+    };
 
-    // Animace
-    let visible = true;
-    document.getElementById("toggleAnim").addEventListener("click", () => {
-      visible = !visible;
-      update(refScore, { animation: visible ? "show" : "hide" });
-    });
+    let show = true;
+    document.getElementById("toggle").onclick = () => {
+      show = !show;
+      update(sb, { animation: show ? "show" : "hide" });
+    };
 
-    // při psaní ručně mění čas
     document.getElementById("time").addEventListener("input", () => {
-      update(refScore, { time: time.value });
+      update(sb, { time: getTime() });
     });
   </script>
 </body>
