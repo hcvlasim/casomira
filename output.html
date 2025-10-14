@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Výstup – Časomíra</title>
+  <title>Časomíra – Výstup</title>
   <style>
     body {
       margin: 0;
@@ -19,7 +19,7 @@
       align-items: stretch;
       font-family: Arial, sans-serif;
       font-weight: bold;
-      transition: all 0.6s ease-in-out;
+      transition: all 0.5s ease-in-out;
       transform-origin: center;
     }
 
@@ -37,11 +37,7 @@
       border-right: 2px solid #007bff;
     }
 
-    .league-logo img {
-      width: 65px;
-      height: 65px;
-      object-fit: contain;
-    }
+    .league-logo img { width: 65px; height: 65px; object-fit: contain; }
 
     .info {
       display: flex;
@@ -80,13 +76,7 @@
       height: 60px;
     }
 
-    .team img {
-      width: 40px;
-      height: 40px;
-      object-fit: contain;
-    }
-
-    .abbr { font-size: 20px; }
+    .team img { width: 40px; height: 40px; object-fit: contain; }
 
     .divider { height: 2px; background: #007bff; }
 
@@ -113,7 +103,7 @@
 <body>
   <div id="scoreboard">
     <div class="league-logo">
-      <img src="https://piskejhokej.cz/img/logo.23de2cb2.png" alt="Logo">
+      <img src="https://piskejhokej.cz/img/logo.23de2cb2.png" alt="">
     </div>
 
     <div class="info">
@@ -124,12 +114,12 @@
     <div class="teams">
       <div class="team">
         <img id="logo1" src="https://hcvlasim.cz/dist/images/logo.svg" alt="">
-        <span id="team1" class="abbr">VLA</span>
+        <span id="team1">VLA</span>
       </div>
       <div class="divider"></div>
       <div class="team">
         <img id="logo2" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjCi29DjHS7XSaP4DKucgDaUxqEXpF57WweQ&s" alt="">
-        <span id="team2" class="abbr">BEN</span>
+        <span id="team2">BEN</span>
       </div>
     </div>
 
@@ -141,7 +131,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+    import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
     const app = initializeApp({
       apiKey: "AIzaSyANQRaMe5QV3Onn3wkBvNx_AxgJA-81D-Q",
@@ -149,8 +139,9 @@
       databaseURL: "https://hcvlasim-default-rtdb.europe-west1.firebasedatabase.app",
       projectId: "hcvlasim"
     });
+
     const db = getDatabase(app);
-    const refScore = ref(db, "scoreboard/");
+    const sb = ref(db, "scoreboard/");
 
     const els = {
       board: document.getElementById("scoreboard"),
@@ -189,33 +180,33 @@
       raf = requestAnimationFrame(tick);
     }
 
-    onValue(refScore, snap => {
-      const data = snap.val();
-      if (!data) return;
+    onValue(sb, snap => {
+      const d = snap.val();
+      if (!d) return;
 
-      els.team1.textContent = data.team1 || "VLA";
-      els.team2.textContent = data.team2 || "BEN";
-      els.logo1.src = data.logo1 || els.logo1.src;
-      els.logo2.src = data.logo2 || els.logo2.src;
-      els.score1.textContent = data.score1 ?? "0";
-      els.score2.textContent = data.score2 ?? "0";
-      els.period.textContent = data.period || "1.";
-      if (data.animation === "hide") els.board.classList.add("hide");
+      els.team1.textContent = d.team1 || "VLA";
+      els.team2.textContent = d.team2 || "BEN";
+      els.logo1.src = d.logo1 || els.logo1.src;
+      els.logo2.src = d.logo2 || els.logo2.src;
+      els.score1.textContent = d.score1 ?? "0";
+      els.score2.textContent = d.score2 ?? "0";
+      els.period.textContent = d.period || "1.";
+
+      if (d.animation === "hide") els.board.classList.add("hide");
       else els.board.classList.remove("hide");
 
-      if (data.startTime && data.startTimestamp && data.running) {
-        const startSec = parse(data.startTime);
-        const elapsed = (Date.now() - data.startTimestamp) / 1000;
-        localSec = Math.max(0, startSec - elapsed);
-        if (!running) {
-          running = true;
-          cancelAnimationFrame(raf);
-          tick();
-        }
-      } else {
+      if (d.running && !running) {
+        localSec = parse(d.time);
+        running = true;
+        cancelAnimationFrame(raf);
+        tick();
+      } else if (!d.running && running) {
         running = false;
         cancelAnimationFrame(raf);
-        els.time.textContent = data.time || fmt(localSec);
+        update(sb, { time: fmt(localSec) }); // uloží aktuální čas při stopu
+      } else if (!running) {
+        localSec = parse(d.time);
+        els.time.textContent = fmt(localSec);
       }
     });
   </script>
