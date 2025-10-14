@@ -1,79 +1,59 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin panel – Hokejová časomíra</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin panel – Časomíra</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f2f4f8;
       margin: 0;
+      background-color: #0d1117;
+      color: #fff;
+      font-family: Arial, sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 20px;
+      min-height: 100vh;
+      padding: 30px;
     }
 
     h1 {
-      margin-bottom: 10px;
-      color: #003366;
+      color: #00aaff;
+      margin-bottom: 20px;
+      text-shadow: 0 0 10px #00aaff;
     }
 
     .panel {
-      background: white;
+      background: #111;
       padding: 20px 30px;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-      width: 480px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0,170,255,0.3);
+      width: 520px;
     }
 
     label {
       display: block;
       font-weight: bold;
+      color: #00aaff;
       margin-top: 10px;
-      color: #003366;
     }
 
     input {
       width: 100%;
+      background: #1a1f25;
+      color: white;
+      border: 1px solid #333;
+      border-radius: 6px;
       padding: 8px;
       font-size: 16px;
       margin-top: 4px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
+      outline: none;
     }
 
-    .buttons {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 20px;
-      gap: 10px;
+    input:focus {
+      border-color: #00aaff;
+      box-shadow: 0 0 5px #00aaff;
     }
-
-    button {
-      flex: 1;
-      padding: 10px;
-      font-size: 16px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      color: white;
-      font-weight: bold;
-      transition: background 0.2s;
-    }
-
-    .start { background: #28a745; }
-    .start:hover { background: #218838; }
-
-    .stop { background: #dc3545; }
-    .stop:hover { background: #c82333; }
-
-    .reset { background: #007bff; }
-    .reset:hover { background: #0069d9; }
-
-    .save { background: #ff8c00; }
-    .save:hover { background: #e07b00; }
 
     .row {
       display: flex;
@@ -81,120 +61,149 @@
       gap: 10px;
     }
 
-    .row input {
-      flex: 1;
+    .buttons {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 20px;
+      flex-wrap: wrap;
     }
+
+    button {
+      flex: 1;
+      border: none;
+      border-radius: 6px;
+      padding: 10px;
+      font-size: 16px;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.2s;
+    }
+
+    .start { background: #00c853; }
+    .stop { background: #d32f2f; }
+    .reset { background: #1976d2; }
+    .save { background: #ff8c00; }
+    .toggle { background: #9c27b0; }
+
+    .start:hover { background: #00e676; }
+    .stop:hover { background: #f44336; }
+    .reset:hover { background: #2196f3; }
+    .save:hover { background: #ffa726; }
+    .toggle:hover { background: #ba68c8; }
   </style>
 </head>
 <body>
   <h1>⚙️ Admin panel – Hokejová časomíra</h1>
+
   <div class="panel">
     <label>🕒 Čas (MM:SS)</label>
-    <input type="text" id="time" value="20:00">
+    <input id="time" type="text" value="20:00">
 
     <label>📅 Třetina</label>
-    <input type="text" id="period" value="1. třetina">
+    <input id="period" type="text" value="1. třetina">
 
     <div class="row">
       <div>
         <label>🏒 Tým 1</label>
-        <input type="text" id="team1" value="VLA">
+        <input id="team1" type="text" value="VLA">
       </div>
       <div>
         <label>Skóre 1</label>
-        <input type="number" id="score1" value="0">
+        <input id="score1" type="number" value="0">
       </div>
     </div>
 
     <div class="row">
       <div>
         <label>🏒 Tým 2</label>
-        <input type="text" id="team2" value="BEN">
+        <input id="team2" type="text" value="BEN">
       </div>
       <div>
         <label>Skóre 2</label>
-        <input type="number" id="score2" value="0">
+        <input id="score2" type="number" value="0">
       </div>
     </div>
 
     <label>🔗 Logo týmu 1 (URL)</label>
-    <input type="text" id="logo1" value="https://hcvlasim.cz/dist/images/logo.svg">
+    <input id="logo1" type="text" value="https://hcvlasim.cz/dist/images/logo.svg">
 
     <label>🔗 Logo týmu 2 (URL)</label>
-    <input type="text" id="logo2" value="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjCi29DjHS7XSaP4DKucgDaUxqEXpF57WweQ&s">
+    <input id="logo2" type="text" value="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjCi29DjHS7XSaP4DKucgDaUxqEXpF57WweQ&s">
 
     <div class="buttons">
-      <button class="start" id="start">▶️ Spustit</button>
-      <button class="stop" id="stop">⏸️ Zastavit</button>
-      <button class="reset" id="reset">🔁 Reset</button>
+      <button id="start" class="start">▶️ Spustit</button>
+      <button id="stop" class="stop">⏸️ Zastavit</button>
+      <button id="reset" class="reset">🔁 Reset</button>
     </div>
 
-    <div class="buttons" style="margin-top:10px;">
-      <button class="save" id="save">💾 Uložit změny</button>
+    <div class="buttons">
+      <button id="save" class="save">💾 Uložit změny</button>
+      <button id="toggleAnim" class="toggle">🎬 Animace</button>
     </div>
   </div>
 
-  <!-- Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-    import { getDatabase, ref, update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+    import { getDatabase, ref, update, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyANQRaMe5QV3Onn3wkBvNx_AxgJA-81D-Q",
-      authDomain: "hcvlasim.firebaseapp.com",
-      databaseURL: "https://hcvlasim-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "hcvlasim",
-      storageBucket: "hcvlasim.firebasestorage.app",
-      messagingSenderId: "384166386163",
-      appId: "1:384166386163:web:79d1ca50cfd973b6deda86",
-      measurementId: "G-WRE3MQ4ZEX"
-    };
+const firebaseConfig = {
+  apiKey: "AIzaSyANQRaMe5QV3Onn3wkBvNx_AxgJA-81D-Q",
+  authDomain: "hcvlasim.firebaseapp.com",
+  databaseURL: "https://hcvlasim-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "hcvlasim",
+  storageBucket: "hcvlasim.firebasestorage.app",
+  messagingSenderId: "384166386163",
+  appId: "1:384166386163:web:79d1ca50cfd973b6deda86",
+  measurementId: "G-WRE3MQ4ZEX"
+};
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     const scoreboardRef = ref(db, "scoreboard/");
 
-    // uložit změny (názvy týmů, skóre, loga, třetina)
+    // 💾 Uložit
     document.getElementById("save").addEventListener("click", () => {
       update(scoreboardRef, {
-        team1: document.getElementById("team1").value,
-        team2: document.getElementById("team2").value,
-        score1: parseInt(document.getElementById("score1").value) || 0,
-        score2: parseInt(document.getElementById("score2").value) || 0,
-        period: document.getElementById("period").value,
-        logo1: document.getElementById("logo1").value,
-        logo2: document.getElementById("logo2").value
+        team1: team1.value,
+        team2: team2.value,
+        score1: parseInt(score1.value) || 0,
+        score2: parseInt(score2.value) || 0,
+        period: period.value,
+        logo1: logo1.value,
+        logo2: logo2.value
       });
       alert("✅ Změny uloženy!");
     });
 
-    // spuštění času
+    // ▶️ Spustit
     document.getElementById("start").addEventListener("click", () => {
-      update(scoreboardRef, {
-        running: true
-      });
+      update(scoreboardRef, { running: true });
     });
 
-    // zastavení času
-    document.getElementById("stop").addEventListener("click", () => {
-      update(scoreboardRef, {
-        running: false
-      });
+    // ⏸️ Zastavit (plně funkční)
+    document.getElementById("stop").addEventListener("click", async () => {
+      const snap = await get(scoreboardRef);
+      const current = snap.val() || {};
+      update(scoreboardRef, { running: false, time: current.time || "00:00" });
     });
 
-    // reset času na 20:00
+    // 🔁 Reset
     document.getElementById("reset").addEventListener("click", () => {
-      update(scoreboardRef, {
-        time: "20:00",
-        running: false
-      });
+      update(scoreboardRef, { time: "20:00", running: false });
     });
 
-    // při změně pole „čas“ ihned aktualizuj ve Firebase
+    // 🎬 Animace
+    let visible = true;
+    document.getElementById("toggleAnim").addEventListener("click", () => {
+      visible = !visible;
+      update(scoreboardRef, { animation: visible ? "show" : "hide" });
+    });
+
+    // ⏱️ Živá změna času při psaní
     document.getElementById("time").addEventListener("input", () => {
-      update(scoreboardRef, {
-        time: document.getElementById("time").value
-      });
+      update(scoreboardRef, { time: time.value });
     });
   </script>
 </body>
