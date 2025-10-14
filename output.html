@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Scoreboard – TELH styl s tresty (final)</title>
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scoreboard – TELH styl</title>
   <style>
     body {
       margin: 0;
@@ -15,26 +14,16 @@
       height: 100vh;
     }
 
-    /* ===== SCOREBOARD ===== */
     #scoreboard {
       display: flex;
       align-items: stretch;
-      box-shadow: 0 0 12px rgba(0, 0, 0, 0.4);
       font-family: Arial, sans-serif;
       font-weight: bold;
       overflow: hidden;
-      transform-origin: center;
-      transition: all 0.6s ease-in-out;
+      box-shadow: 0 0 10px rgba(0,0,0,0.4);
     }
 
-    /* ✨ Animace zmizení celé časomíry */
-    #scoreboard.hidden {
-      transform: scale(0.4);
-      opacity: 0;
-      filter: blur(4px);
-    }
-
-    /* 🇨🇿 Logo Českého hokeje */
+    /* Český hokej logo */
     .league-logo {
       background: white;
       display: flex;
@@ -50,7 +39,7 @@
       object-fit: contain;
     }
 
-    /* 🔵 Časomíra */
+    /* Čas a třetina */
     .info {
       display: flex;
       flex-direction: column;
@@ -67,7 +56,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 22px;
+      font-size: 20px;
       height: 40px;
       border-bottom: 2px solid white;
     }
@@ -76,20 +65,19 @@
       border-bottom: none;
     }
 
-    /* ⚪ Týmy */
+    /* Týmy */
     .teams {
       display: flex;
       flex-direction: column;
-      justify-content: center;
       background: white;
-      padding: 0 12px;
       color: #003366;
+      justify-content: center;
+      padding: 0 10px;
     }
 
     .team {
       display: flex;
       align-items: center;
-      justify-content: flex-start;
       gap: 8px;
       height: 60px;
     }
@@ -98,22 +86,19 @@
       width: 40px;
       height: 40px;
       object-fit: contain;
-      background: #fff;
     }
 
     .abbr {
       font-size: 20px;
       font-weight: 800;
-      color: #003366;
     }
 
     .divider {
       height: 2px;
       background: #007bff;
-      margin: 0;
     }
 
-    /* 🟠 Skóre */
+    /* Skóre */
     .scores {
       display: flex;
       flex-direction: column;
@@ -136,46 +121,13 @@
     .score:last-child {
       border-bottom: none;
     }
-
-    /* 🔵 Tresty */
-    .penalties {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      background: #007bff;
-      width: 70px;
-      transform: translateX(-100%);
-      transition: all 0.5s ease-in-out;
-      opacity: 0;
-    }
-
-    .penalty {
-      height: 60px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 22px;
-      font-weight: 800;
-      border-bottom: 2px solid white;
-    }
-
-    .penalty:last-child {
-      border-bottom: none;
-    }
-
-    /* Aktivní animace "swipe zleva doprava" */
-    .penalties.active {
-      transform: translateX(0);
-      opacity: 1;
-    }
   </style>
 </head>
 <body>
   <div id="scoreboard">
-    <!-- Logo Českého hokeje -->
+    <!-- Český hokej -->
     <div class="league-logo">
-      <img src="https://piskejhokej.cz/img/logo.23de2cb2.png" alt="Český hokej" />
+      <img src="https://piskejhokej.cz/img/logo.23de2cb2.png" alt="Český hokej">
     </div>
 
     <!-- Časomíra -->
@@ -187,14 +139,14 @@
     <!-- Týmy -->
     <div class="teams">
       <div class="team">
-        <img id="logo1" src="https://hcvlasim.cz/dist/images/logo.svg" alt="Vlašim" />
+        <img id="logo1" src="https://hcvlasim.cz/dist/images/logo.svg" alt="Vlašim">
         <span id="team1" class="abbr">VLA</span>
       </div>
 
       <div class="divider"></div>
 
       <div class="team">
-        <img id="logo2" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjCi29DjHS7XSaP4DKucgDaUxqEXpF57WweQ&s" alt="Benešov" />
+        <img id="logo2" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjCi29DjHS7XSaP4DKucgDaUxqEXpF57WweQ&s" alt="Benešov">
         <span id="team2" class="abbr">BEN</span>
       </div>
     </div>
@@ -204,15 +156,9 @@
       <div id="score1" class="score">0</div>
       <div id="score2" class="score">0</div>
     </div>
-
-    <!-- Tresty -->
-    <div class="penalties" id="penalties">
-      <div id="penalty1" class="penalty">00:00</div>
-      <div id="penalty2" class="penalty">00:00</div>
-    </div>
   </div>
 
-  <!-- 🔥 Firebase čtení -->
+  <!-- Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
     import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
@@ -227,12 +173,9 @@ const firebaseConfig = {
   appId: "1:384166386163:web:79d1ca50cfd973b6deda86",
   measurementId: "G-WRE3MQ4ZEX"
 };
-
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    const sb = document.getElementById("scoreboard");
-    const penalties = document.getElementById("penalties");
     const refs = {
       team1: document.getElementById("team1"),
       team2: document.getElementById("team2"),
@@ -241,55 +184,26 @@ const firebaseConfig = {
       score1: document.getElementById("score1"),
       score2: document.getElementById("score2"),
       time: document.getElementById("time"),
-      period: document.getElementById("period"),
-      penalty1: document.getElementById("penalty1"),
-      penalty2: document.getElementById("penalty2")
+      period: document.getElementById("period")
     };
 
     onValue(ref(db, "scoreboard/"), (snapshot) => {
       const data = snapshot.val();
       if (!data) return;
 
-      // 🏒 Týmy
-      if (data.team1) refs.team1.textContent = data.team1;
-      if (data.team2) refs.team2.textContent = data.team2;
-      if (data.logo1) refs.logo1.src = data.logo1;
-      if (data.logo2) refs.logo2.src = data.logo2;
+      // 🏒 Základní údaje
+      refs.team1.textContent = data.team1 || "VLA";
+      refs.team2.textContent = data.team2 || "BEN";
+      refs.logo1.src = data.logo1 || refs.logo1.src;
+      refs.logo2.src = data.logo2 || refs.logo2.src;
 
       // 🟠 Skóre
-      if (data.score1 !== undefined) refs.score1.textContent = data.score1;
-      if (data.score2 !== undefined) refs.score2.textContent = data.score2;
+      refs.score1.textContent = data.score1 ?? "0";
+      refs.score2.textContent = data.score2 ?? "0";
 
-      // ⏱️ Čas
-      if (data.time) refs.time.textContent = data.time;
-      if (data.period) refs.period.textContent = data.period;
-
-      // 🎬 Viditelnost celé časomíry
-      if (data.visible === false) sb.classList.add("hidden");
-      else sb.classList.remove("hidden");
-
-      // 🚨 TRESTY
-      let anyActive = false;
-
-      // když má trest jen jeden tým → zobraz jen jeho
-      if (data.penalty1_active) {
-        refs.penalty1.textContent = data.penalty1_time || "00:00";
-        refs.penalty1.style.display = "flex";
-        refs.penalty2.style.display = "none";
-        anyActive = true;
-      } else if (data.penalty2_active) {
-        refs.penalty2.textContent = data.penalty2_time || "00:00";
-        refs.penalty1.style.display = "none";
-        refs.penalty2.style.display = "flex";
-        anyActive = true;
-      } else {
-        refs.penalty1.style.display = "none";
-        refs.penalty2.style.display = "none";
-      }
-
-      // zobraz / skryj celý box s animací
-      if (anyActive) penalties.classList.add("active");
-      else penalties.classList.remove("active");
+      // ⏱️ Čas + třetina
+      refs.time.textContent = data.time || "20:00";
+      refs.period.textContent = data.period || "1.";
     });
   </script>
 </body>
