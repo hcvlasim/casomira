@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin panel – Časomíra</title>
+  <title>Admin panel – Hokejová časomíra</title>
   <style>
     body {
       margin: 0;
-      background-color: #0d1117;
-      color: #fff;
+      background: #0d1117;
+      color: white;
       font-family: Arial, sans-serif;
       display: flex;
       flex-direction: column;
@@ -20,39 +20,39 @@
     h1 {
       color: #00aaff;
       margin-bottom: 20px;
-      text-shadow: 0 0 10px #00aaff;
+      text-shadow: 0 0 8px #00aaff;
     }
 
     .panel {
       background: #111;
-      padding: 20px 30px;
       border-radius: 12px;
-      box-shadow: 0 0 20px rgba(0,170,255,0.3);
-      width: 520px;
+      box-shadow: 0 0 15px rgba(0, 170, 255, 0.4);
+      padding: 25px 30px;
+      width: 500px;
     }
 
     label {
-      display: block;
-      font-weight: bold;
       color: #00aaff;
+      display: block;
       margin-top: 10px;
+      font-weight: bold;
     }
 
     input {
       width: 100%;
-      background: #1a1f25;
+      padding: 8px;
+      font-size: 16px;
+      background: #1b1f27;
       color: white;
       border: 1px solid #333;
       border-radius: 6px;
-      padding: 8px;
-      font-size: 16px;
       margin-top: 4px;
       outline: none;
     }
 
     input:focus {
       border-color: #00aaff;
-      box-shadow: 0 0 5px #00aaff;
+      box-shadow: 0 0 6px #00aaff;
     }
 
     .row {
@@ -65,8 +65,8 @@
       display: flex;
       justify-content: space-between;
       gap: 10px;
-      margin-top: 20px;
       flex-wrap: wrap;
+      margin-top: 20px;
     }
 
     button {
@@ -75,10 +75,10 @@
       border-radius: 6px;
       padding: 10px;
       font-size: 16px;
+      font-weight: bold;
       color: white;
       cursor: pointer;
-      font-weight: bold;
-      transition: all 0.2s;
+      transition: background 0.2s ease;
     }
 
     .start { background: #00c853; }
@@ -139,7 +139,7 @@
     </div>
 
     <div class="buttons">
-      <button id="save" class="save">💾 Uložit změny</button>
+      <button id="save" class="save">💾 Uložit</button>
       <button id="toggleAnim" class="toggle">🎬 Animace</button>
     </div>
   </div>
@@ -148,24 +148,23 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
     import { getDatabase, ref, update, get } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyANQRaMe5QV3Onn3wkBvNx_AxgJA-81D-Q",
-  authDomain: "hcvlasim.firebaseapp.com",
-  databaseURL: "https://hcvlasim-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "hcvlasim",
-  storageBucket: "hcvlasim.firebasestorage.app",
-  messagingSenderId: "384166386163",
-  appId: "1:384166386163:web:79d1ca50cfd973b6deda86",
-  measurementId: "G-WRE3MQ4ZEX"
-};
+    const firebaseConfig = {
+      apiKey: "AIzaSyANQRaMe5QV3Onn3wkBvNx_AxgJA-81D-Q",
+      authDomain: "hcvlasim.firebaseapp.com",
+      databaseURL: "https://hcvlasim-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "hcvlasim",
+      storageBucket: "hcvlasim.firebasestorage.app",
+      messagingSenderId: "384166386163",
+      appId: "1:384166386163:web:79d1ca50cfd973b6deda86"
+    };
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    const scoreboardRef = ref(db, "scoreboard/");
+    const refScore = ref(db, "scoreboard/");
 
-    // 💾 Uložit
+    // uložit základní data
     document.getElementById("save").addEventListener("click", () => {
-      update(scoreboardRef, {
+      update(refScore, {
         team1: team1.value,
         team2: team2.value,
         score1: parseInt(score1.value) || 0,
@@ -174,36 +173,48 @@ const firebaseConfig = {
         logo1: logo1.value,
         logo2: logo2.value
       });
-      alert("✅ Změny uloženy!");
+      alert("✅ Uloženo!");
     });
 
-    // ▶️ Spustit
-    document.getElementById("start").addEventListener("click", () => {
-      update(scoreboardRef, { running: true });
-    });
-
-    // ⏸️ Zastavit (plně funkční)
-    document.getElementById("stop").addEventListener("click", async () => {
-      const snap = await get(scoreboardRef);
+    // Spustit
+    document.getElementById("start").addEventListener("click", async () => {
+      const snap = await get(refScore);
       const current = snap.val() || {};
-      update(scoreboardRef, { running: false, time: current.time || "00:00" });
+      update(refScore, {
+        running: true,
+        startTimestamp: Date.now(),
+        startTime: current.time || "20:00"
+      });
     });
 
-    // 🔁 Reset
+    // Zastavit (uloží aktuální čas)
+    document.getElementById("stop").addEventListener("click", async () => {
+      const snap = await get(refScore);
+      const current = snap.val() || {};
+      update(refScore, {
+        running: false,
+        time: current.time || "00:00"
+      });
+    });
+
+    // Reset
     document.getElementById("reset").addEventListener("click", () => {
-      update(scoreboardRef, { time: "20:00", running: false });
+      update(refScore, {
+        time: "20:00",
+        running: false
+      });
     });
 
-    // 🎬 Animace
+    // Animace
     let visible = true;
     document.getElementById("toggleAnim").addEventListener("click", () => {
       visible = !visible;
-      update(scoreboardRef, { animation: visible ? "show" : "hide" });
+      update(refScore, { animation: visible ? "show" : "hide" });
     });
 
-    // ⏱️ Živá změna času při psaní
+    // při psaní ručně mění čas
     document.getElementById("time").addEventListener("input", () => {
-      update(scoreboardRef, { time: time.value });
+      update(refScore, { time: time.value });
     });
   </script>
 </body>
