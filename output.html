@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Scoreboard – přesné vteřiny</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scoreboard – TELH styl (přesné vteřiny)</title>
   <style>
     body {
       margin: 0;
@@ -12,54 +12,134 @@
       justify-content: center;
       align-items: center;
       height: 100vh;
-      font-family: Arial, sans-serif;
     }
 
     #scoreboard {
-      display:flex;
-      align-items:stretch;
-      box-shadow:0 0 10px rgba(0,0,0,0.35);
-      font-weight:800;
+      display: flex;
+      align-items: stretch;
+      font-family: Arial, sans-serif;
+      font-weight: bold;
+      overflow: hidden;
+      box-shadow: 0 0 10px rgba(0,0,0,0.4);
     }
 
-    .league-logo{background:#fff;display:flex;align-items:center;justify-content:center;width:90px;border-right:2px solid #007bff}
-    .league-logo img{width:65px;height:65px;object-fit:contain}
+    .league-logo {
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 90px;
+      border-right: 2px solid #007bff;
+    }
 
-    .info{display:flex;flex-direction:column;justify-content:center;background:#007bff;color:#fff;text-align:center;width:100px;border-right:2px solid #fff}
-    .info div{display:flex;align-items:center;justify-content:center;height:40px;font-size:20px;border-bottom:2px solid rgba(255,255,255,0.12)}
-    .info div:last-child{border-bottom:none}
+    .league-logo img {
+      width: 65px;
+      height: 65px;
+      object-fit: contain;
+    }
 
-    .teams{display:flex;flex-direction:column;background:#fff;color:#003366;justify-content:center;padding:0 10px}
-    .team{display:flex;align-items:center;gap:8px;height:60px}
-    .team img{width:40px;height:40px;object-fit:contain}
-    .abbr{font-size:20px}
+    .info {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background: #007bff;
+      color: white;
+      text-align: center;
+      width: 100px;
+      border-right: 2px solid white;
+    }
 
-    .divider{height:2px;background:#007bff}
+    .info div {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      height: 40px;
+      border-bottom: 2px solid white;
+    }
 
-    .scores{display:flex;flex-direction:column;justify-content:center;background:#ff8c00}
-    .score{width:60px;height:60px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:26px;border-bottom:2px solid rgba(255,255,255,0.12)}
-    .score:last-child{border-bottom:none}
+    .info div:last-child {
+      border-bottom: none;
+    }
+
+    .teams {
+      display: flex;
+      flex-direction: column;
+      background: white;
+      color: #003366;
+      justify-content: center;
+      padding: 0 10px;
+    }
+
+    .team {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      height: 60px;
+    }
+
+    .team img {
+      width: 40px;
+      height: 40px;
+      object-fit: contain;
+    }
+
+    .abbr {
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    .divider {
+      height: 2px;
+      background: #007bff;
+    }
+
+    .scores {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background: #ff8c00;
+    }
+
+    .score {
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 26px;
+      font-weight: 800;
+      border-bottom: 2px solid white;
+    }
+
+    .score:last-child {
+      border-bottom: none;
+    }
   </style>
 </head>
 <body>
   <div id="scoreboard">
     <div class="league-logo">
-      <img id="leagueLogo" src="https://piskejhokej.cz/img/logo.23de2cb2.png" alt="Český hokej"/>
+      <img src="https://piskejhokej.cz/img/logo.23de2cb2.png" alt="Český hokej">
     </div>
 
     <div class="info">
       <div id="period">1.</div>
-      <div id="timeDisplay">20:00</div>
+      <div id="time">20:00</div>
     </div>
 
     <div class="teams">
       <div class="team">
-        <img id="logo1" src="https://hcvlasim.cz/dist/images/logo.svg" alt="Team1"/>
+        <img id="logo1" src="https://hcvlasim.cz/dist/images/logo.svg" alt="Vlašim">
         <span id="team1" class="abbr">VLA</span>
       </div>
+
       <div class="divider"></div>
+
       <div class="team">
-        <img id="logo2" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjCi29DjHS7XSaP4DKucgDaUxqEXpF57WweQ&s" alt="Team2"/>
+        <img id="logo2" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjCi29DjHS7XSaP4DKucgDaUxqEXpF57WweQ&s" alt="Benešov">
         <span id="team2" class="abbr">BEN</span>
       </div>
     </div>
@@ -71,147 +151,85 @@
   </div>
 
   <script type="module">
-    // ---- IMPORT FIREBASE (moduly) ----
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
     import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-    // ---- NASTAVTE SEM SVŮJ FIREBASE CONFIG ----
-const firebaseConfig = {
-  apiKey: "AIzaSyANQRaMe5QV3Onn3wkBvNx_AxgJA-81D-Q",
-  authDomain: "hcvlasim.firebaseapp.com",
-  databaseURL: "https://hcvlasim-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "hcvlasim",
-  storageBucket: "hcvlasim.firebasestorage.app",
-  messagingSenderId: "384166386163",
-  appId: "1:384166386163:web:79d1ca50cfd973b6deda86",
-  measurementId: "G-WRE3MQ4ZEX"
-};
+    const firebaseConfig = {
+      apiKey: "AIzaSyANQRaMe5QV3Onn3wkBvNx_AxgJA-81D-Q",
+      authDomain: "hcvlasim.firebaseapp.com",
+      databaseURL: "https://hcvlasim-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "hcvlasim",
+      storageBucket: "hcvlasim.firebasestorage.app",
+      messagingSenderId: "384166386163",
+      appId: "1:384166386163:web:79d1ca50cfd973b6deda86",
+      measurementId: "G-WRE3MQ4ZEX"
+    };
+
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    const scoreboardRef = ref(db, "scoreboard/");
 
-    // ---- DOM refs ----
-    const timeDisplay = document.getElementById("timeDisplay");
-    const periodEl = document.getElementById("period");
-    const team1El = document.getElementById("team1");
-    const team2El = document.getElementById("team2");
-    const logo1El = document.getElementById("logo1");
-    const logo2El = document.getElementById("logo2");
-    const score1El = document.getElementById("score1");
-    const score2El = document.getElementById("score2");
-
-    // ---- pomocné funkce ----
-    const mmssToSeconds = (mmss) => {
-      if (!mmss || typeof mmss !== "string") return 0;
-      const parts = mmss.split(":").map(p => parseInt(p,10));
-      if (parts.length === 2) return parts[0]*60 + (parts[1]||0);
-      if (parts.length === 1) return parts[0];
-      return 0;
-    };
-    const secondsToMmss = (s) => {
-      if (s < 0) s = 0;
-      const m = Math.floor(s/60);
-      const sec = Math.floor(s%60);
-      return String(m).padStart(2,"0") + ":" + String(sec).padStart(2,"0");
+    const refs = {
+      team1: document.getElementById("team1"),
+      team2: document.getElementById("team2"),
+      logo1: document.getElementById("logo1"),
+      logo2: document.getElementById("logo2"),
+      score1: document.getElementById("score1"),
+      score2: document.getElementById("score2"),
+      time: document.getElementById("time"),
+      period: document.getElementById("period")
     };
 
-    // ---- Lokální přesný timer (requestAnimationFrame) ----
-    let localSeconds = null;        // aktuální lokální sekundy (float)
-    let runningLocally = false;     // jestli lokálně countdown běží
-    let lastRAF = null;             // timestamp posledního frame
-    let prevFirebaseSeconds = null; // poslední čas přijatý z firebase
-    let firebaseUpdatedAt = 0;      // ms - kdy přišla poslední firebase update
+    let localTimer = null;
+    let remainingSeconds = 0;
 
-    function rafTick(now) {
-      if (!runningLocally) { lastRAF = null; return; }
-      if (lastRAF == null) lastRAF = now;
-      const elapsed = (now - lastRAF) / 1000; // v sekundách (float)
-      lastRAF = now;
-      localSeconds = Math.max(0, localSeconds - elapsed);
-      timeDisplay.textContent = secondsToMmss(localSeconds);
-      // Pokud doběhne na 0, zastavíme
-      if (localSeconds <= 0) {
-        runningLocally = false;
-        lastRAF = null;
-        return;
+    function parseTimeToSeconds(t) {
+      const [m, s] = (t || "00:00").split(":").map(Number);
+      return m * 60 + (s || 0);
+    }
+
+    function formatSeconds(sec) {
+      if (sec < 0) sec = 0;
+      const m = Math.floor(sec / 60);
+      const s = Math.floor(sec % 60);
+      return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+    }
+
+    function startAccurateTimer() {
+      const start = performance.now();
+      const startSec = remainingSeconds;
+      cancelAnimationFrame(localTimer);
+
+      function tick(now) {
+        const elapsed = (now - start) / 1000;
+        const newSec = startSec - elapsed;
+        if (newSec <= 0) {
+          refs.time.textContent = "00:00";
+          return;
+        }
+        refs.time.textContent = formatSeconds(newSec);
+        localTimer = requestAnimationFrame(tick);
       }
-      requestAnimationFrame(rafTick);
+
+      localTimer = requestAnimationFrame(tick);
     }
 
-    function startLocalCountdown(fromSeconds) {
-      localSeconds = fromSeconds;
-      if (!runningLocally) {
-        runningLocally = true;
-        lastRAF = null;
-        requestAnimationFrame(rafTick);
-      }
-    }
-
-    function stopLocalCountdown() {
-      runningLocally = false;
-      lastRAF = null;
-    }
-
-    // ---- Firebase listener a logika synchronizace ----
-    onValue(scoreboardRef, (snap) => {
-      const data = snap.val();
+    onValue(ref(db, "scoreboard/"), (snapshot) => {
+      const data = snapshot.val();
       if (!data) return;
 
-      // základní položky (logo/názvy/skóre/perioda)
-      if (data.team1) team1El.textContent = data.team1;
-      if (data.team2) team2El.textContent = data.team2;
-      if (data.logo1) logo1El.src = data.logo1;
-      if (data.logo2) logo2El.src = data.logo2;
-      if (data.score1 !== undefined) score1El.textContent = data.score1;
-      if (data.score2 !== undefined) score2El.textContent = data.score2;
-      if (data.period) periodEl.textContent = data.period;
+      refs.team1.textContent = data.team1 || "VLA";
+      refs.team2.textContent = data.team2 || "BEN";
+      refs.logo1.src = data.logo1 || refs.logo1.src;
+      refs.logo2.src = data.logo2 || refs.logo2.src;
+      refs.score1.textContent = data.score1 ?? "0";
+      refs.score2.textContent = data.score2 ?? "0";
+      refs.period.textContent = data.period || "1.";
 
-      // čas z Firebase (očekáváme MM:SS)
-      const fbTime = data.time || "20:00";
-      const fbSeconds = mmssToSeconds(fbTime);
-
-      const nowMs = Date.now();
-      firebaseUpdatedAt = nowMs;
-
-      // Pokud admin explicitně posílá běh stavu (pole "running" nebo "isRunning"), respektujeme ho:
-      const fbRunning = data.running === true || data.isRunning === true || data.timer_running === true;
-
-      // 1) pokud je přijatý čas menší než předchozí přijatý => admin zřejmě spustil (nebo čas běží na serveru)
-      if (prevFirebaseSeconds !== null && fbSeconds < prevFirebaseSeconds) {
-        // spuštění lokálního přesného odpočtu z hodnoty z Firebase
-        startLocalCountdown(fbSeconds);
-      }
-
-      // 2) pokud explicitně FB říká running:true -> spustíme lokální countdown z fbSeconds
-      if (fbRunning && !runningLocally) {
-        startLocalCountdown(fbSeconds);
-      }
-
-      // 3) pokud FB říká running:false -> zastavíme lokálně a nastavíme přesný čas z FB
-      if (fbRunning === false) {
-        // zastav, a synchronizuj
-        stopLocalCountdown();
-        timeDisplay.textContent = secondsToMmss(fbSeconds);
-      }
-
-      // 4) pokud lokálně běží, ale FB nám posílá jiný čas (rozsah resyncu), synchronizuj
-      if (runningLocally) {
-        // pokud rozdíl mezi lokálním a FB > 0.6s, upravíme lokální na FB (resync)
-        const diff = Math.abs((localSeconds ?? 0) - fbSeconds);
-        if (diff > 0.6) {
-          // synchronizace na FB čas (minimalizuje drift)
-          localSeconds = fbSeconds;
-          timeDisplay.textContent = secondsToMmss(localSeconds);
-        }
-      } else {
-        // když neběží lokálně, jen zobrazíme databázový čas
-        timeDisplay.textContent = secondsToMmss(fbSeconds);
-      }
-
-      // uložíme pro další srovnání
-      prevFirebaseSeconds = fbSeconds;
+      // ⏱️ Přesný čas
+      const timeString = data.time || "20:00";
+      remainingSeconds = parseTimeToSeconds(timeString);
+      startAccurateTimer();
     });
-    
   </script>
 </body>
 </html>
