@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ovládací panel – TELH časomíra</title>
+  <title>Ovládací panel – TELH časomíra s tresty</title>
   <style>
     body {
       background-color: #0d1117;
@@ -89,13 +89,35 @@
     .toggle-btn.hide {
       background-color: #ff4b4b;
     }
+
+    .penalty-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .team-penalty {
+      background: #111;
+      border-radius: 6px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    .team-penalty h3 {
+      margin-top: 0;
+      color: #66b0ff;
+    }
+
+    .penalty-buttons button {
+      margin-right: 6px;
+    }
   </style>
 </head>
 <body>
 
-  <h1>🏒 Ovládací panel – Časomíra TELH</h1>
+  <h1>🏒 Ovládací panel – Časomíra s tresty</h1>
 
-  <!-- 🔹 Nastavení týmů -->
+  <!-- 🏁 Týmy -->
   <div class="section">
     <h2>🏁 Týmy</h2>
     <label>Tým vlevo:</label>
@@ -109,7 +131,7 @@
     <button onclick="updateTeams()">💾 Uložit týmy</button>
   </div>
 
-  <!-- 🔹 Skóre -->
+  <!-- 🟠 Skóre -->
   <div class="section">
     <h2>🟠 Skóre</h2>
     <label>Skóre vlevo:</label>
@@ -119,7 +141,7 @@
     <button onclick="updateScore()">💾 Uložit skóre</button>
   </div>
 
-  <!-- 🔹 Čas -->
+  <!-- ⏱️ Čas -->
   <div class="section">
     <h2>⏱️ Čas</h2>
     <label>Čas:</label>
@@ -133,7 +155,7 @@
     </div>
   </div>
 
-  <!-- 🔹 Třetina -->
+  <!-- 📘 Třetina -->
   <div class="section">
     <h2>📘 Třetina</h2>
     <select id="period">
@@ -145,33 +167,65 @@
     <button onclick="updatePeriod()">💾 Uložit třetinu</button>
   </div>
 
-  <!-- 🔹 Viditelnost -->
+  <!-- 🚨 TRESTY -->
+  <div class="section">
+    <h2>🚨 Tresty</h2>
+
+    <div class="penalty-controls">
+      <div class="team-penalty">
+        <h3>Trest – VLA</h3>
+        <div>
+          <select id="penalty1_duration">
+            <option value="120">2 minuty</option>
+            <option value="240">4 minuty</option>
+            <option value="300">5 minut</option>
+          </select>
+          <button onclick="startPenalty(1)">Začít trest</button>
+          <button onclick="cancelPenalty(1)">Zrušit</button>
+        </div>
+      </div>
+
+      <div class="team-penalty">
+        <h3>Trest – BEN</h3>
+        <div>
+          <select id="penalty2_duration">
+            <option value="120">2 minuty</option>
+            <option value="240">4 minuty</option>
+            <option value="300">5 minut</option>
+          </select>
+          <button onclick="startPenalty(2)">Začít trest</button>
+          <button onclick="cancelPenalty(2)">Zrušit</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🎬 Zobrazení -->
   <div class="section">
     <h2>🎬 Zobrazení</h2>
     <button id="toggleBtn" class="toggle-btn" onclick="toggleVisibility()">🎬 Skrýt časomíru</button>
   </div>
 
-  <!-- 🔹 Reset -->
+  <!-- ⚙️ Reset -->
   <div class="section">
     <h2>⚙️ Další</h2>
     <button class="reset-btn" onclick="resetAll()">♻️ Reset všeho</button>
   </div>
 
-  <!-- 🔹 Firebase logika -->
+  <!-- 🔥 Firebase logika -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
     import { getDatabase, ref, update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyANQRaMe5QV3Onn3wkBvNx_AxgJA-81D-Q",
-  authDomain: "hcvlasim.firebaseapp.com",
-  databaseURL: "https://hcvlasim-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "hcvlasim",
-  storageBucket: "hcvlasim.firebasestorage.app",
-  messagingSenderId: "384166386163",
-  appId: "1:384166386163:web:79d1ca50cfd973b6deda86",
-  measurementId: "G-WRE3MQ4ZEX"
-};
+    const firebaseConfig = {
+      apiKey: "TVŮJ_API_KEY",
+      authDomain: "TVŮJ_PROJEKT.firebaseapp.com",
+      databaseURL: "https://TVŮJ_PROJEKT-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "TVŮJ_PROJEKT",
+      storageBucket: "TVŮJ_PROJEKT.appspot.com",
+      messagingSenderId: "XXXXXXXXXX",
+      appId: "1:XXXXXXXXXX:web:XXXXXXXXXX"
+    };
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
@@ -180,14 +234,16 @@ const firebaseConfig = {
     let timer;
     let running = false;
     let visible = true;
+    let penaltyTimers = { 1: null, 2: null };
+    let penaltyTimes = { 1: 0, 2: 0 };
 
     function sync(data) {
       update(ref(db, "scoreboard/"), data);
     }
 
-    function timeToText() {
-      const m = Math.floor(totalSeconds / 60);
-      const s = totalSeconds % 60;
+    function timeToText(t) {
+      const m = Math.floor(t / 60);
+      const s = t % 60;
       return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
     }
 
@@ -220,17 +276,17 @@ const firebaseConfig = {
     window.setTime = function() {
       const parts = timeInput.value.split(":");
       totalSeconds = parseInt(parts[0]) * 60 + parseInt(parts[1]);
-      sync({ time: timeToText() });
+      sync({ time: timeToText(totalSeconds) });
     };
 
     window.plusSecond = function() {
       totalSeconds++;
-      sync({ time: timeToText() });
+      sync({ time: timeToText(totalSeconds) });
     };
 
     window.minusSecond = function() {
       if (totalSeconds > 0) totalSeconds--;
-      sync({ time: timeToText() });
+      sync({ time: timeToText(totalSeconds) });
     };
 
     window.startTimer = function() {
@@ -239,7 +295,22 @@ const firebaseConfig = {
         timer = setInterval(() => {
           if (totalSeconds > 0) {
             totalSeconds--;
-            sync({ time: timeToText() });
+            sync({ time: timeToText(totalSeconds) });
+          }
+
+          // ubíhají tresty
+          for (let i = 1; i <= 2; i++) {
+            if (penaltyTimes[i] > 0) {
+              penaltyTimes[i]--;
+              sync({
+                [`penalty${i}_time`]: timeToText(penaltyTimes[i]),
+              });
+              if (penaltyTimes[i] === 0) {
+                sync({
+                  [`penalty${i}_active`]: false,
+                });
+              }
+            }
           }
         }, 1000);
       }
@@ -250,19 +321,32 @@ const firebaseConfig = {
       clearInterval(timer);
     };
 
-    // 🎬 Zobrazit / skrýt s animací
+    // 🚨 Tresty
+    window.startPenalty = function(team) {
+      const select = document.getElementById(`penalty${team}_duration`);
+      penaltyTimes[team] = parseInt(select.value);
+
+      sync({
+        [`penalty${team}_active`]: true,
+        [`penalty${team}_time`]: timeToText(penaltyTimes[team]),
+      });
+    };
+
+    window.cancelPenalty = function(team) {
+      penaltyTimes[team] = 0;
+      sync({
+        [`penalty${team}_active`]: false,
+        [`penalty${team}_time`]: "00:00",
+      });
+    };
+
+    // 🎬 Viditelnost
     window.toggleVisibility = function() {
       visible = !visible;
       const btn = document.getElementById("toggleBtn");
       sync({ visible: visible });
-
-      if (visible) {
-        btn.classList.remove("hide");
-        btn.textContent = "🎬 Skrýt časomíru";
-      } else {
-        btn.classList.add("hide");
-        btn.textContent = "🎬 Zobrazit časomíru";
-      }
+      btn.textContent = visible ? "🎬 Skrýt časomíru" : "🎬 Zobrazit časomíru";
+      btn.classList.toggle("hide", !visible);
     };
 
     // ♻️ Reset
@@ -277,7 +361,11 @@ const firebaseConfig = {
         score2: 0,
         time: "20:00",
         period: "1.",
-        visible: true
+        visible: true,
+        penalty1_active: false,
+        penalty2_active: false,
+        penalty1_time: "00:00",
+        penalty2_time: "00:00"
       });
     };
   </script>
