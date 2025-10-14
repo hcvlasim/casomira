@@ -5,30 +5,55 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – Hokejová časomíra</title>
 <style>
-  body{
-    margin:0;background:#0d1117;color:white;
-    font-family:Arial,Helvetica,sans-serif;
-    display:flex;flex-direction:column;align-items:center;
-    min-height:100vh;padding:40px;
+  body {
+    margin: 0;
+    background: #0d1117;
+    color: white;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px;
   }
-  h1{color:#00aaff;text-shadow:0 0 10px #00aaff}
-  .panel{
-    background:#111;padding:25px 35px;border-radius:12px;
-    box-shadow:0 0 20px rgba(0,170,255,0.4);width:420px;
+  h1 {
+    color: #00aaff;
+    text-shadow: 0 0 10px #00aaff;
   }
-  label{display:block;color:#00aaff;margin-top:10px;font-weight:bold}
-  input{
-    width:100%;padding:8px;font-size:16px;background:#1a1f25;color:white;
-    border:1px solid #333;border-radius:6px;margin-top:4px;outline:none;
+  .panel {
+    background: #111;
+    padding: 25px 35px;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0,170,255,0.4);
+    width: 420px;
   }
-  .buttons{display:flex;justify-content:space-between;gap:10px;margin-top:20px}
-  button{
-    flex:1;border:none;border-radius:6px;padding:10px;font-size:16px;
-    font-weight:bold;color:white;cursor:pointer;transition:background 0.2s;
+  label { color: #00aaff; display: block; margin-top: 10px; font-weight: bold; }
+  input {
+    width: 100%;
+    padding: 8px;
+    font-size: 16px;
+    background: #1a1f25;
+    color: white;
+    border: 1px solid #333;
+    border-radius: 6px;
+    margin-top: 4px;
+    outline: none;
   }
-  .toggle{background:#00c853;}
-  .toggle.stop{background:#d32f2f;}
-  .reset{background:#1976d2;}
+  .buttons { display: flex; justify-content: space-between; gap: 10px; margin-top: 20px; }
+  button {
+    flex: 1;
+    border: none;
+    border-radius: 6px;
+    padding: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .toggle { background: #00c853; }
+  .toggle.stop { background: #d32f2f; }
+  .reset { background: #1976d2; }
+  .anim { background: #9c27b0; }
 </style>
 </head>
 <body>
@@ -57,11 +82,14 @@
     <button id="toggleBtn" class="toggle">▶️ Spustit</button>
     <button id="reset" class="reset">🔁 Reset</button>
   </div>
+  <div class="buttons">
+    <button id="anim" class="anim">🎬 Animace</button>
+  </div>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-  import { getDatabase, ref, update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+  import { getDatabase, ref, update, onValue } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
   const app = initializeApp({
     apiKey: "AIzaSyANQRaMe5QV3Onn3wkBvNx_AxgJA-81D-Q",
@@ -70,35 +98,45 @@
     projectId: "hcvlasim"
   });
   const db = getDatabase(app);
-  const sb = ref(db,"scoreboard/");
+  const sb = ref(db, "scoreboard/");
 
-  let running=false;
+  let running = false;
 
-  const btn=document.getElementById("toggleBtn");
-  const getTime=()=>document.getElementById("time").value;
+  const btn = document.getElementById("toggleBtn");
+  const getTime = () => document.getElementById("time").value;
 
-  btn.onclick=()=>{
-    running=!running;
-    if(running){
-      btn.textContent="⏸️ Zastavit";
+  btn.onclick = () => {
+    running = !running;
+    if (running) {
+      btn.textContent = "⏸️ Zastavit";
       btn.classList.add("stop");
-    }else{
-      btn.textContent="▶️ Spustit";
+    } else {
+      btn.textContent = "▶️ Spustit";
       btn.classList.remove("stop");
     }
-    update(sb,{running,time:getTime(),period:period.value,team1:team1.value,team2:team2.value,score1:+score1.value,score2:+score2.value});
+    update(sb, { running });
   };
 
-  document.getElementById("reset").onclick=()=>{
-    running=false;
-    btn.textContent="▶️ Spustit";
+  document.getElementById("reset").onclick = () => {
+    running = false;
+    btn.textContent = "▶️ Spustit";
     btn.classList.remove("stop");
-    update(sb,{running:false,time:"20:00"});
-    document.getElementById("time").value="20:00";
+    update(sb, { running: false, time: "20:00" });
+    document.getElementById("time").value = "20:00";
   };
 
-  document.getElementById("time").addEventListener("input",()=>{
-    update(sb,{time:getTime()});
+  document.getElementById("anim").onclick = () => {
+    update(sb, { animation: "toggle" });
+  };
+
+  document.getElementById("time").addEventListener("input", () => {
+    update(sb, { time: getTime() });
+  });
+
+  onValue(sb, (snap) => {
+    const d = snap.val();
+    if (!d) return;
+    document.getElementById("time").value = d.time || "20:00";
   });
 </script>
 </body>
