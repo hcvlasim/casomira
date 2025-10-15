@@ -4,66 +4,51 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – Hokejová časomíra</title>
-<style>
-body {
-  margin: 0;
-  background: #0d1117;
-  color: white;
-  font-family: Arial, sans-serif;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-top: 40px;
-}
-.controls {
-  background: rgba(0,0,0,0.3);
-  padding: 25px;
-  border-radius: 10px;
-  width: 720px;
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
-}
-.section {
-  border-top: 1px solid #333;
-  padding-top: 10px;
-}
-.section h3 {
-  color: #00aaff;
-  margin-bottom: 10px;
-  text-align: center;
-}
-.buttons {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-input, select {
-  background: #111;
-  border: 1px solid #333;
-  color: white;
-  padding: 6px 10px;
-  border-radius: 4px;
-  font-size: 14px;
-}
-button {
-  background: #007bff;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-button:hover { background: #005fcc; }
-button.stop { background: #d32f2f; }
-button.penalty { background: #0066cc; }
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+<!-- SCOREBOARD -->
+<div id="scoreboard">
+  <div class="league-logo">
+    <img id="leagueLogo" src="https://piskejhokej.cz/img/logo.23de2cb2.png" alt="Český hokej">
+  </div>
+
+  <div class="info">
+    <div id="period">1. třetina</div>
+    <div id="time">20:00</div>
+  </div>
+
+  <div class="teams">
+    <div class="team" id="teamA">
+      <img id="logoA" src="https://hcvlasim.cz/dist/images/logo.svg" alt="Vlašim">
+      <span id="nameA">VLA</span>
+    </div>
+    <div class="divider"></div>
+    <div class="team" id="teamB">
+      <img id="logoB" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjCi29DjHS7XSaP4DKucgDaUxqEXpF57WweQ&s" alt="Benešov">
+      <span id="nameB">BEN</span>
+    </div>
+  </div>
+
+  <div class="scores">
+    <div id="scoreA" class="score">0</div>
+    <div id="scoreB" class="score">0</div>
+  </div>
+
+  <div class="penalty-box">
+    <div class="penalty-row">
+      <div id="penA1" class="penalty hidden"></div>
+      <div id="penA2" class="penalty hidden"></div>
+    </div>
+    <div class="penalty-row">
+      <div id="penB1" class="penalty hidden"></div>
+      <div id="penB2" class="penalty hidden"></div>
+    </div>
+  </div>
+</div>
+
+<!-- OVLÁDACÍ PANEL -->
 <div class="controls">
   <div class="section">
     <h3>⏱️ Časomíra</h3>
@@ -72,6 +57,7 @@ button.penalty { background: #0066cc; }
       <button id="applyStart">Nastavit</button>
       <button id="startStop">▶️ Spustit</button>
       <button id="resetTime">🔁 Reset času</button>
+      <button id="toggle" class="toggle">🎬 Zobrazit / Skrýt</button>
     </div>
   </div>
 
@@ -123,9 +109,10 @@ button.penalty { background: #0066cc; }
   </div>
 </div>
 
+<!-- Firebase a logika -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { getDatabase, ref, set, onValue, update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+import { getDatabase, ref, update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyANQRaMe5QV3Onn3wkBvNx_AxgJA-81D-Q",
@@ -139,12 +126,13 @@ const firebaseConfig = {
 };
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-const scoreboardRef = ref(db, "scoreboard");
+const dbRef = ref(db, "scoreboard");
 
+const timeDisplay = document.getElementById("time");
+let running = false;
 let seconds = 20 * 60;
 let startSeconds = 20 * 60;
-let running = false;
-let penalties = [];
+let lastTick = null;
 
 function fmt(s) {
   const m = Math.floor(s / 60);
@@ -152,73 +140,79 @@ function fmt(s) {
   return `${String(m).padStart(2,"0")}:${String(sec).padStart(2,"0")}`;
 }
 
-function save() {
-  update(scoreboardRef, {
-    time: fmt(seconds),
-    period: document.getElementById("periodInput").value || "1. třetina",
-    teamA: document.getElementById("teamAInput").value || "VLA",
-    teamB: document.getElementById("teamBInput").value || "BEN",
-    logoA: document.getElementById("logoAInput").value || "",
-    logoB: document.getElementById("logoBInput").value || "",
-    leagueLogo: document.getElementById("leagueLogoInput").value || "",
-    penalties: penalties
+function loop(now) {
+  if (!lastTick) lastTick = now;
+  const delta = (now - lastTick) / 1000;
+  lastTick = now;
+
+  if (running) {
+    seconds -= delta;
+    if (seconds <= 0) seconds = 0;
+    timeDisplay.textContent = fmt(seconds);
+    sendToFirebase();
+    requestAnimationFrame(loop);
+  }
+}
+
+function sendToFirebase() {
+  update(dbRef, {
+    time: timeDisplay.textContent,
+    period: document.getElementById("period").textContent,
+    teamA: document.getElementById("nameA").textContent,
+    teamB: document.getElementById("nameB").textContent,
+    logoA: document.getElementById("logoA").src,
+    logoB: document.getElementById("logoB").src,
+    leagueLogo: document.getElementById("leagueLogo").src,
   });
 }
 
-function tick() {
-  if (!running) return;
-  seconds--;
-  penalties.forEach(p => p.remaining--);
-  penalties = penalties.filter(p => p.remaining > 0);
-  save();
-  setTimeout(tick, 1000);
-}
-
-document.getElementById("applyStart").onclick = () => {
-  const val = document.getElementById("startTime").value;
-  if (!val.includes(":")) return;
-  const [m, s] = val.split(":").map(Number);
-  startSeconds = seconds = m * 60 + s;
-  save();
-};
-
 document.getElementById("startStop").onclick = () => {
   running = !running;
-  if (running) tick();
-  save();
+  document.getElementById("startStop").textContent = running ? "⏸️ Zastavit" : "▶️ Spustit";
+  if (running) { lastTick = null; requestAnimationFrame(loop); }
 };
 
 document.getElementById("resetTime").onclick = () => {
   running = false;
   seconds = startSeconds;
-  save();
+  timeDisplay.textContent = fmt(seconds);
+  sendToFirebase();
 };
 
-document.getElementById("setPeriod").onclick = save;
-document.getElementById("setTeams").onclick = save;
-document.getElementById("setLogos").onclick = save;
-
-function addPenalty(team, secondsDur) {
-  penalties.push({ team, remaining: secondsDur });
-  save();
-}
-document.getElementById("addA2").onclick = () => addPenalty("A",120);
-document.getElementById("addA4").onclick = () => addPenalty("A",240);
-document.getElementById("addA5").onclick = () => addPenalty("A",300);
-document.getElementById("addB2").onclick = () => addPenalty("B",120);
-document.getElementById("addB4").onclick = () => addPenalty("B",240);
-document.getElementById("addB5").onclick = () => addPenalty("B",300);
-
-document.getElementById("removeA").onclick = () => {
-  penalties = penalties.filter(p => p.team !== "A");
-  save();
-};
-document.getElementById("removeB").onclick = () => {
-  penalties = penalties.filter(p => p.team !== "B");
-  save();
+document.getElementById("applyStart").onclick = () => {
+  const val = document.getElementById("startTime").value;
+  if (!val || !val.includes(":")) return;
+  const [m, s] = val.split(":").map(Number);
+  startSeconds = seconds = m * 60 + s;
+  timeDisplay.textContent = fmt(seconds);
+  sendToFirebase();
 };
 
-save();
+document.getElementById("setPeriod").onclick = () => {
+  const val = document.getElementById("periodInput").value;
+  if (val) {
+    document.getElementById("period").textContent = val;
+    sendToFirebase();
+  }
+};
+
+document.getElementById("setTeams").onclick = () => {
+  const a = document.getElementById("teamAInput").value;
+  const b = document.getElementById("teamBInput").value;
+  if (a) document.getElementById("nameA").textContent = a;
+  if (b) document.getElementById("nameB").textContent = b;
+  sendToFirebase();
+};
+
+document.getElementById("setLogos").onclick = () => {
+  const a = document.getElementById("logoAInput").value;
+  const b = document.getElementById("logoBInput").value;
+  const c = document.getElementById("leagueLogoInput").value;
+  if (a) document.getElementById("logoA").src = a;
+  if (b) document.getElementById("logoB").src = b;
+  if (c) document.getElementById("leagueLogo").src = c;
+  sendToFirebase();
+};
 </script>
 </body>
 </html>
