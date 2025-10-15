@@ -39,6 +39,26 @@
     </div>
 
     <div class="section">
+      <h3>📊 Skóre</h3>
+      <div class="buttons">
+        <span style="width:70px;text-align:right;">VLA:</span>
+        <button id="minusA">−1</button>
+        <input id="scoreAInput" placeholder="0" style="width:60px;text-align:center;">
+        <button id="plusA">+1</button>
+      </div>
+      <div class="buttons">
+        <span style="width:70px;text-align:right;">BEN:</span>
+        <button id="minusB">−1</button>
+        <input id="scoreBInput" placeholder="0" style="width:60px;text-align:center;">
+        <button id="plusB">+1</button>
+      </div>
+      <div class="buttons">
+        <button id="applyScores">Uložit skóre</button>
+        <button id="resetScores">Vynulovat skóre</button>
+      </div>
+    </div>
+
+    <div class="section">
       <h3>🚨 Tresty</h3>
       <div class="buttons">
         <span style="width:70px;text-align:right;">VLA:</span>
@@ -47,8 +67,8 @@
         <button onclick="addPenalty('A',300)">+5</button>
         <select id="removeASelect">
           <option value="">Smazat trest...</option>
-          <option value="penA1">Trest 1</option>
-          <option value="penA2">Trest 2</option>
+          <option value="A1">Trest 1</option>
+          <option value="A2">Trest 2</option>
         </select>
         <button onclick="removePenalty('A')">❌</button>
       </div>
@@ -59,8 +79,8 @@
         <button onclick="addPenalty('B',300)">+5</button>
         <select id="removeBSelect">
           <option value="">Smazat trest...</option>
-          <option value="penB1">Trest 1</option>
-          <option value="penB2">Trest 2</option>
+          <option value="B1">Trest 1</option>
+          <option value="B2">Trest 2</option>
         </select>
         <button onclick="removePenalty('B')">❌</button>
       </div>
@@ -69,7 +89,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-    import { getDatabase, ref, update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+    import { getDatabase, ref, update, onValue } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyANQRaMe5QV3Onn3wkBvNx_AxgJA-81D-Q",
@@ -89,17 +109,29 @@
     let seconds = 20 * 60;
     let startSeconds = 20 * 60;
     let lastTick = null;
-    let penalties = [];
     let hidden = false;
+
+    // tresty (max 2 na tým, držíme pole objektů {team, remaining, time})
+    let penalties = [];
+
+    // skóre – lokální proměnné + vstupy
+    let scoreA = 0, scoreB = 0;
+    const scoreAInput = document.getElementById("scoreAInput");
+    const scoreBInput = document.getElementById("scoreBInput");
+
+    // Načti případná existující data (aby se admin syncnul s outputem)
+    onValue(dbRef, (snap) => {
+      const d = snap.val() || {};
+      if (typeof d.scoreA === "number") { scoreA = d.scoreA; scoreAInput.value = String(scoreA); }
+      if (typeof d.scoreB === "number") { scoreB = d.scoreB; scoreBInput.value = String(scoreB); }
+    }, { onlyOnce: true });
 
     function fmt(s) {
       const m = Math.floor(s / 60);
       const sec = Math.floor(s % 60);
       return `${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
     }
-    function send(data) {
-      update(dbRef, data);
-    }
+    function send(data) { update(dbRef, data); }
 
     function loop(now) {
       if (!lastTick) lastTick = now;
@@ -108,32 +140,30 @@
       if (running) {
         seconds -= delta;
         if (seconds <= 0) seconds = 0;
+
         penalties.forEach(p => {
           p.remaining -= delta;
-          if (p.remaining <= 0) p.remaining = 0;
+          if (p.remaining < 0) p.remaining = 0;
           p.time = fmt(p.remaining);
         });
+
         send({ time: fmt(seconds), penalties });
         requestAnimationFrame(loop);
       }
     }
 
+    // ČAS
     document.getElementById("startStop").onclick = () => {
       running = !running;
       const btn = document.getElementById("startStop");
       btn.textContent = running ? "⏸️ Zastavit" : "▶️ Spustit";
-      if (running) {
-        lastTick = null;
-        requestAnimationFrame(loop);
-      }
+      if (running) { lastTick = null; requestAnimationFrame(loop); }
     };
-
     document.getElementById("resetTime").onclick = () => {
       running = false;
       seconds = startSeconds;
       send({ time: fmt(seconds) });
     };
-
     document.getElementById("applyStart").onclick = () => {
       const val = document.getElementById("startTime").value;
       if (!val || !val.includes(":")) return;
@@ -141,12 +171,12 @@
       startSeconds = seconds = m * 60 + s;
       send({ time: fmt(seconds) });
     };
-
     document.getElementById("toggle").onclick = () => {
       hidden = !hidden;
       send({ hidden });
     };
 
+    // ZÁPAS
     document.getElementById("setPeriod").onclick = () => {
       const val = document.getElementById("periodInput").value;
       if (val) send({ period: val });
@@ -154,22 +184,58 @@
     document.getElementById("setTeams").onclick = () => {
       const a = document.getElementById("teamAInput").value;
       const b = document.getElementById("teamBInput").value;
-      send({ teamA: a, teamB: b });
+      send({ teamA: a || "VLA", teamB: b || "BEN" });
     };
     document.getElementById("setLogos").onclick = () => {
       const a = document.getElementById("logoAInput").value;
       const b = document.getElementById("logoBInput").value;
       const c = document.getElementById("leagueLogoInput").value;
-      send({ logoA: a, logoB: b, leagueLogo: c });
+      send({ logoA: a || "", logoB: b || "", leagueLogo: c || "" });
     };
 
+    // SKÓRE – tlačítka
+    document.getElementById("plusA").onclick  = () => { scoreA++; scoreAInput.value = String(scoreA); send({ scoreA }); };
+    document.getElementById("minusA").onclick = () => { scoreA = Math.max(0, scoreA - 1); scoreAInput.value = String(scoreA); send({ scoreA }); };
+    document.getElementById("plusB").onclick  = () => { scoreB++; scoreBInput.value = String(scoreB); send({ scoreB }); };
+    document.getElementById("minusB").onclick = () => { scoreB = Math.max(0, scoreB - 1); scoreBInput.value = String(scoreB); send({ scoreB }); };
+
+    // Uložení skóre z políček
+    document.getElementById("applyScores").onclick = () => {
+      const a = Number(scoreAInput.value);
+      const b = Number(scoreBInput.value);
+      scoreA = Number.isFinite(a) ? Math.max(0, Math.floor(a)) : scoreA;
+      scoreB = Number.isFinite(b) ? Math.max(0, Math.floor(b)) : scoreB;
+      scoreAInput.value = String(scoreA);
+      scoreBInput.value = String(scoreB);
+      send({ scoreA, scoreB });
+    };
+    document.getElementById("resetScores").onclick = () => {
+      scoreA = 0; scoreB = 0;
+      scoreAInput.value = "0";
+      scoreBInput.value = "0";
+      send({ scoreA: 0, scoreB: 0 });
+    };
+
+    // TRESTY
     window.addPenalty = (team, duration) => {
+      // max 2 tresty na tým – přidáváme / přepisujeme volné sloty
+      const teamPens = penalties.filter(p => p.team === team && p.remaining > 0);
+      if (teamPens.length >= 2) return; // už má 2 aktivní
       penalties.push({ team, remaining: duration, time: fmt(duration) });
       send({ penalties });
     };
-
     window.removePenalty = (team) => {
-      penalties = penalties.filter(p => p.team !== team);
+      const selectId = team === "A" ? "removeASelect" : "removeBSelect";
+      const which = document.getElementById(selectId).value; // A1/A2 nebo B1/B2
+      if (!which) return;
+
+      // smažeme jen jeden (první) trest daného týmu
+      let removed = false;
+      penalties = penalties.filter(p => {
+        if (removed) return true;
+        if (p.team === team && p.remaining > 0) { removed = true; return false; }
+        return true;
+      });
       send({ penalties });
     };
   </script>
