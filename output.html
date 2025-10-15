@@ -7,9 +7,8 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
 <div id="scoreboard">
-  <div class="league-logo"><img id="leagueLogo" alt="Český hokej"></div>
+  <div class="league-logo"><img id="leagueLogo"></div>
   <div class="info"><div id="period"></div><div id="time"></div></div>
   <div class="teams">
     <div class="team"><img id="logoA"><span id="nameA"></span></div>
@@ -17,39 +16,48 @@
     <div class="team"><img id="logoB"><span id="nameB"></span></div>
   </div>
   <div class="scores"><div id="scoreA" class="score">0</div><div id="scoreB" class="score">0</div></div>
+  <div class="penalty-box"><div class="penalty-row" id="penA"></div><div class="penalty-row" id="penB"></div></div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
 import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyANQRaMe5QV3Onn3wkBvNx_AxgJA-81D-Q",
-  authDomain: "hcvlasim.firebaseapp.com",
-  databaseURL: "https://hcvlasim-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "hcvlasim",
-  storageBucket: "hcvlasim.firebasestorage.app",
-  messagingSenderId: "384166386163",
-  appId: "1:384166386163:web:79d1ca50cfd973b6deda86",
-  measurementId: "G-WRE3MQ4ZEX"
+const firebaseConfig={
+  apiKey:"AIzaSyANQRaMe5QV3Onn3wkBvNx_AxgJA-81D-Q",
+  authDomain:"hcvlasim.firebaseapp.com",
+  databaseURL:"https://hcvlasim-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:"hcvlasim",
+  storageBucket:"hcvlasim.firebasestorage.app",
+  messagingSenderId:"384166386163",
+  appId:"1:384166386163:web:79d1ca50cfd973b6deda86",
+  measurementId:"G-WRE3MQ4ZEX"
 };
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-const dbRef = ref(db, "scoreboard");
+const app=initializeApp(firebaseConfig);
+const db=getDatabase(app);
+const refBoard=ref(db,"scoreboard");
 
-onValue(dbRef, (snap) => {
-  const d = snap.val();
-  if (!d) return;
+onValue(refBoard,(snap)=>{
+  const d=snap.val();if(!d)return;
+  document.getElementById("time").textContent=d.time||"20:00";
+  document.getElementById("period").textContent=d.period||"1. třetina";
+  document.getElementById("nameA").textContent=d.teamA||"VLA";
+  document.getElementById("nameB").textContent=d.teamB||"BEN";
+  if(d.logoA)document.getElementById("logoA").src=d.logoA;
+  if(d.logoB)document.getElementById("logoB").src=d.logoB;
+  if(d.leagueLogo)document.getElementById("leagueLogo").src=d.leagueLogo;
 
-  document.getElementById("time").textContent = d.time || "20:00";
-  document.getElementById("period").textContent = d.period || "1. třetina";
-  document.getElementById("nameA").textContent = d.teamA || "VLA";
-  document.getElementById("nameB").textContent = d.teamB || "BEN";
-  if (d.logoA) document.getElementById("logoA").src = d.logoA;
-  if (d.logoB) document.getElementById("logoB").src = d.logoB;
-  if (d.leagueLogo) document.getElementById("leagueLogo").src = d.leagueLogo;
+  const penA=document.getElementById("penA"), penB=document.getElementById("penB");
+  penA.innerHTML=""; penB.innerHTML="";
+  if(d.penalties){
+    d.penalties.forEach(p=>{
+      const el=document.createElement("div");
+      el.className="penalty";
+      el.textContent=p.time;
+      if(p.team==="A")penA.appendChild(el); else penB.appendChild(el);
+    });
+  }
 });
 </script>
-
 </body>
 </html>
