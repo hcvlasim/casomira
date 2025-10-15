@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hokejová časomíra – finální verze</title>
+<style>
+  body {
+    margin: 0;
+    background: transparent;
+    font-family: Arial, sans-serif;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    height: 100vh;
+    padding-top: 40px;
+  }
+
+  /* SCOREBOARD */
+  #scoreboard {
+    display: flex;
+    align-items: stretch;
+    font-weight: bold;
+    overflow: hidden;
+    transition: transform 0.6s ease, opacity 0.6s ease;
+  }
+
+  #scoreboard.hide {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+
+  .league-logo {
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 70px;
+    border-right: 2px solid #007bff;
+  }
+
+  .league-logo img {
+    width: 50px;
+    height: 50px;
+  }
+
+  .info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: #007bff;
+    color: white;
+    text-align: center;
+    width: 100px;
+    border-right: 2px solid white;
+  }
+
+  .info div {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    height: 40px;
+    border-bottom: 2px solid white;
+  }
+
+  .teams {
+    display: flex;
+    flex-direction: column;
+    background: white;
+    color: #003366;
+    justify-content: center;
+    padding: 0 10px;
+  }
+
+  .team {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 60px;
+  }
+
+  .team img {
+    width: 40px;
+    height: 40px;
+  }
+
+  .divider {
+    height: 2px;
+    background: #007bff;
+  }
+
+  .scores {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: #ff8c00;
+  }
+
+  .score {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 26px;
+    font-weight: 800;
+    border-bottom: 2px solid white;
+  }
+
+  .score:last-child {
+    border-bottom: none;
+  }
+
+  /* TRESTY */
+  .penalty-box {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-left: 4px;
+  }
+
+  .penalty-row {
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+  }
+
+  .penalty {
+    width: 75px;
+    height: 60px;
+    background: #007bff;
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+  }
+
+  .penalty.hidden {
+    display: none;
+  }
+
+  /* OVLÁDACÍ PANEL */
+  .controls {
+    margin-top: 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0,0,0,0.3);
+    padding: 25px;
+    border-radius: 10px;
+    width: 720px;
+  }
+
+  .section {
+    border-top: 1px solid #333;
+    padding-top: 10px;
+    width: 100%;
+  }
+
+  .section h3 {
+    color: #00aaff;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+
+  .buttons {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  input {
+    background: #111;
+    border: 1px solid #333;
+    color: white;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+
+  button {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  button:hover { background: #005fcc; }
+  button.stop { background: #d32f2f; }
+  button.reset { background: #ff8c00; }
+  button.toggle { background: #9c27b0; }
+  button.penalty { background: #0066cc; }
+  select {
+    background: #111;
+    border: 1px solid #333;
+    color: white;
+    padding: 6px;
+    border-radius: 4px;
+  }
+</style>
+</head>
+<body>
+
+<!-- SCOREBOARD -->
+<div id="scoreboard">
+  <div class="league-logo">
+    <img src="https://piskejhokej.cz/img/logo.23de2cb2.png" alt="Český hokej">
+  </div>
+
+  <div class="info">
+    <div id="period">1. třetina</div>
+    <div id="time">20:00</div>
+  </div>
+
+  <div class="teams">
+    <div class="team" id="teamA">
+      <img src="https://hcvlasim.cz/dist/images/logo.svg" alt="Vlašim">
+      <span id="nameA">VLA</span>
+    </div>
+    <div class="divider"></div>
+    <div class="team" id="teamB">
+      <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjCi29DjHS7XSaP4DKucgDaUxqEXpF57WweQ&s" alt="Benešov">
+      <span id="nameB">BEN</span>
+    </div>
+  </div>
+
+  <div class="scores">
+    <div id="scoreA" class="score">0</div>
+    <div id="scoreB" class="score">0</div>
+  </div>
+
+  <!-- TRESTY -->
+  <div class="penalty-box">
+    <div class="penalty-row">
+      <div id="penA1" class="penalty hidden"></div>
+      <div id="penA2" class="penalty hidden"></div>
+    </div>
+    <div class="penalty-row">
+      <div id="penB1" class="penalty hidden"></div>
+      <div id="penB2" class="penalty hidden"></div>
+    </div>
+  </div>
+</div>
+
+<!-- OVLÁDACÍ PANEL -->
+<div class="controls">
+  <div class="section">
+    <h3>⏱️ Časomíra</h3>
+    <div class="buttons">
+      <button id="startStop">▶️ Spustit</button>
+      <button id="reset" class="reset">🔁 Reset</button>
+      <button id="toggle" class="toggle">🎬 Zobrazit / Skrýt</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>🏒 Nastavení zápasu</h3>
+    <div class="buttons">
+      <input id="periodInput" placeholder="1. třetina">
+      <button id="setPeriod">Nastavit třetinu</button>
+    </div>
+    <div class="buttons">
+      <input id="teamAInput" placeholder="Tým 1 (VLA)">
+      <input id="teamBInput" placeholder="Tým 2 (BEN)">
+      <button id="setTeams">Nastavit týmy</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>🚨 Tresty</h3>
+    <div class="buttons">
+      <span style="width:70px;text-align:right;">VLA:</span>
+      <button id="addA2" class="penalty">+2</button>
+      <button id="addA4" class="penalty">+4</button>
+      <button id="addA5" class="penalty">+5</button>
+      <select id="removeASelect">
+        <option value="">Smazat trest...</option>
+        <option value="penA1">Trest 1</option>
+        <option value="penA2">Trest 2</option>
+      </select>
+      <button id="removeA">❌</button>
+    </div>
+    <div class="buttons">
+      <span style="width:70px;text-align:right;">BEN:</span>
+      <button id="addB2" class="penalty">+2</button>
+      <button id="addB4" class="penalty">+4</button>
+      <button id="addB5" class="penalty">+5</button>
+      <select id="removeBSelect">
+        <option value="">Smazat trest...</option>
+        <option value="penB1">Trest 1</option>
+        <option value="penB2">Trest 2</option>
+      </select>
+      <button id="removeB">❌</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const timeDisplay = document.getElementById("time");
+  const scoreboard = document.getElementById("scoreboard");
+  const btnStartStop = document.getElementById("startStop");
+  const btnReset = document.getElementById("reset");
+  const btnToggle = document.getElementById("toggle");
+
+  let running = false;
+  let seconds = 20 * 60;
+  let lastTick = null;
+  let penalties = [];
+
+  function fmt(s) {
+    const m = Math.floor(s / 60);
+    const sec = Math.floor(s % 60);
+    return `${String(m).padStart(2,"0")}:${String(sec).padStart(2,"0")}`;
+  }
+
+  function loop(now) {
+    if (!lastTick) lastTick = now;
+    const delta = (now - lastTick) / 1000;
+    lastTick = now;
+
+    if (running) {
+      seconds -= delta;
+      if (seconds <= 0) {
+        seconds = 0;
+        timeDisplay.textContent = "00:00";
+        running = false;
+        scoreboard.classList.add("hide");
+      } else {
+        timeDisplay.textContent = fmt(seconds);
+        updatePenalties(delta);
+        requestAnimationFrame(loop);
+      }
+    }
+  }
+
+  btnStartStop.onclick = () => {
+    running = !running;
+    btnStartStop.textContent = running ? "⏸️ Zastavit" : "▶️ Spustit";
+    btnStartStop.classList.toggle("stop", running);
+    if (running) {
+      lastTick = null;
+      scoreboard.classList.remove("hide");
+      requestAnimationFrame(loop);
+    }
+  };
+
+  btnReset.onclick = () => {
+    running = false;
+    seconds = 20 * 60;
+    timeDisplay.textContent = "20:00";
+    btnStartStop.textContent = "▶️ Spustit";
+    btnStartStop.classList.remove("stop");
+    penalties = [];
+    document.querySelectorAll(".penalty").forEach(p => p.classList.add("hidden"));
+    scoreboard.classList.remove("hide");
+  };
+
+  btnToggle.onclick = () => scoreboard.classList.toggle("hide");
+
+  // Nastavení zápasu
+  document.getElementById("setPeriod").onclick = () => {
+    const val = document.getElementById("periodInput").value;
+    if (val) document.getElementById("period").textContent = val;
+  };
+
+  document.getElementById("setTeams").onclick = () => {
+    const a = document.getElementById("teamAInput").value;
+    const b = document.getElementById("teamBInput").value;
+    if (a) document.getElementById("nameA").textContent = a;
+    if (b) document.getElementById("nameB").textContent = b;
+  };
+
+  // ======= TRESTY =======
+  function addPenalty(team, duration) {
+    const slots = [document.getElementById(`pen${team}1`), document.getElementById(`pen${team}2`)];
+    const free = slots.find(p => p.classList.contains("hidden"));
+    if (!free) return;
+    free.classList.remove("hidden");
+    free.textContent = fmt(duration);
+    penalties.push({ div: free, remaining: duration });
+  }
+
+  function removePenalty(id) {
+    const div = document.getElementById(id);
+    if (div && !div.classList.contains("hidden")) {
+      penalties = penalties.filter(p => p.div !== div);
+      div.classList.add("hidden");
+    }
+  }
+
+  function updatePenalties(delta) {
+    penalties.forEach(p => {
+      p.remaining -= delta;
+      if (p.remaining <= 0) {
+        p.div.classList.add("hidden");
+        p.done = true;
+      } else {
+        p.div.textContent = fmt(p.remaining);
+      }
+    });
+    penalties = penalties.filter(p => !p.done);
+  }
+
+  // Ovládání trestů
+  document.getElementById("addA2").onclick = () => addPenalty("A", 120);
+  document.getElementById("addA4").onclick = () => addPenalty("A", 240);
+  document.getElementById("addA5").onclick = () => addPenalty("A", 300);
+  document.getElementById("addB2").onclick = () => addPenalty("B", 120);
+  document.getElementById("addB4").onclick = () => addPenalty("B", 240);
+  document.getElementById("addB5").onclick = () => addPenalty("B", 300);
+
+  // Mazání konkrétních trestů
+  document.getElementById("removeA").onclick = () => {
+    const sel = document.getElementById("removeASelect").value;
+    if (sel) removePenalty(sel);
+  };
+  document.getElementById("removeB").onclick = () => {
+    const sel = document.getElementById("removeBSelect").value;
+    if (sel) removePenalty(sel);
+  };
+</script>
+</body>
+</html>
