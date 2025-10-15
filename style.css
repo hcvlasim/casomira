@@ -1,0 +1,217 @@
+body {
+  margin: 0;
+  background: transparent;
+  font-family: Arial, sans-serif;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  height: 100vh;
+  padding-top: 40px;
+}
+
+/* SCOREBOARD */
+#scoreboard {
+  display: flex;
+  align-items: stretch;
+  font-weight: bold;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(0,0,0,0.4);
+  transform-origin: center;
+}
+
+#scoreboard.hide {
+  transform: scale(0.9);
+  opacity: 0;
+}
+
+.league-logo {
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  border-right: 2px solid #007bff;
+}
+
+.league-logo img {
+  width: 55px;
+  height: 55px;
+  object-fit: contain;
+}
+
+/* Čas a třetina */
+.info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: #007bff;
+  color: white;
+  text-align: center;
+  width: 100px;
+  border-right: 2px solid white;
+}
+
+.info div {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  height: 40px;
+  border-bottom: 2px solid white;
+}
+
+.info div:last-child {
+  border-bottom: none;
+}
+
+/* Týmy */
+.teams {
+  display: flex;
+  flex-direction: column;
+  background: white;
+  color: #003366;
+  justify-content: center;
+  padding: 0 10px;
+}
+
+.team {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 60px;
+}
+
+.team img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.divider {
+  height: 2px;
+  background: #007bff;
+}
+
+/* Skóre */
+.scores {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: #ff8c00;
+}
+
+.score {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 26px;
+  font-weight: 800;
+  border-bottom: 2px solid white;
+}
+
+.score:last-child {
+  border-bottom: none;
+}
+
+/* TRESTY */
+.penalty-box {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin-left: 4px;
+}
+
+.penalty-row {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+}
+
+.penalty {
+  width: 75px;
+  height: 60px;
+  background: #007bff;
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.penalty.hidden {
+  display: none;
+}
+
+/* OVLÁDACÍ PANEL */
+.controls {
+  margin-top: 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0,0,0,0.3);
+  padding: 25px;
+  border-radius: 10px;
+  width: 720px;
+}
+
+.section {
+  border-top: 1px solid #333;
+  padding-top: 10px;
+  width: 100%;
+}
+
+.section h3 {
+  color: #00aaff;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.buttons {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+input {
+  background: #111;
+  border: 1px solid #333;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+button {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+button:hover { background: #005fcc; }
+button.stop { background: #d32f2f; }
+button.toggle { background: #9c27b0; }
+button.penalty { background: #0066cc; }
+
+select {
+  background: #111;
+  border: 1px solid #333;
+  color: white;
+  padding: 6px;
+  border-radius: 4px;
+}
