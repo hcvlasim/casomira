@@ -5,139 +5,220 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin – Hokejová časomíra</title>
 <style>
-  body {
-    margin: 0;
-    background: #0d1117;
-    color: white;
-    font-family: Arial, sans-serif;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 30px;
-  }
-  h1 {
-    color: #00aaff;
-    text-shadow: 0 0 10px #00aaff;
-  }
-  .panel {
-    background: #111;
-    padding: 25px 35px;
-    border-radius: 12px;
-    box-shadow: 0 0 20px rgba(0,170,255,0.4);
-    width: 420px;
-  }
-  label { color: #00aaff; display: block; margin-top: 10px; font-weight: bold; }
-  input {
-    width: 100%;
-    padding: 8px;
-    font-size: 16px;
-    background: #1a1f25;
-    color: white;
-    border: 1px solid #333;
-    border-radius: 6px;
-    margin-top: 4px;
-    outline: none;
-  }
-  .buttons { display: flex; justify-content: space-between; gap: 10px; margin-top: 20px; }
-  button {
-    flex: 1;
-    border: none;
-    border-radius: 6px;
-    padding: 10px;
-    font-size: 16px;
-    font-weight: bold;
-    color: white;
-    cursor: pointer;
-    transition: background 0.2s;
-  }
-  .toggle { background: #00c853; }
-  .toggle.stop { background: #d32f2f; }
-  .reset { background: #1976d2; }
-  .anim { background: #9c27b0; }
+body {
+  margin: 0;
+  background: #0d1117;
+  color: white;
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 40px;
+}
+.controls {
+  background: rgba(0,0,0,0.3);
+  padding: 25px;
+  border-radius: 10px;
+  width: 720px;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+.section {
+  border-top: 1px solid #333;
+  padding-top: 10px;
+}
+.section h3 {
+  color: #00aaff;
+  margin-bottom: 10px;
+  text-align: center;
+}
+.buttons {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+input, select {
+  background: #111;
+  border: 1px solid #333;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+button {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+button:hover { background: #005fcc; }
+button.stop { background: #d32f2f; }
+button.penalty { background: #0066cc; }
 </style>
 </head>
 <body>
-<h1>⚙️ Admin panel – Hokejová časomíra</h1>
 
-<div class="panel">
-  <label>🕒 Čas (MM:SS)</label>
-  <input id="time" value="20:00">
-
-  <label>📅 Třetina</label>
-  <input id="period" value="1. třetina">
-
-  <label>🏒 Tým 1</label>
-  <input id="team1" value="VLA">
-
-  <label>🏒 Tým 2</label>
-  <input id="team2" value="BEN">
-
-  <label>Skóre 1</label>
-  <input id="score1" type="number" value="0">
-
-  <label>Skóre 2</label>
-  <input id="score2" type="number" value="0">
-
-  <div class="buttons">
-    <button id="toggleBtn" class="toggle">▶️ Spustit</button>
-    <button id="reset" class="reset">🔁 Reset</button>
+<div class="controls">
+  <div class="section">
+    <h3>⏱️ Časomíra</h3>
+    <div class="buttons">
+      <input id="startTime" placeholder="Startovní čas (např. 20:00)" style="width:150px;">
+      <button id="applyStart">Nastavit</button>
+      <button id="startStop">▶️ Spustit</button>
+      <button id="resetTime">🔁 Reset času</button>
+    </div>
   </div>
-  <div class="buttons">
-    <button id="anim" class="anim">🎬 Animace</button>
+
+  <div class="section">
+    <h3>🏒 Nastavení zápasu</h3>
+    <div class="buttons">
+      <input id="periodInput" placeholder="1. třetina">
+      <button id="setPeriod">Nastavit třetinu</button>
+    </div>
+    <div class="buttons">
+      <input id="teamAInput" placeholder="Tým 1 (VLA)">
+      <input id="teamBInput" placeholder="Tým 2 (BEN)">
+      <button id="setTeams">Nastavit týmy</button>
+    </div>
+    <div class="buttons">
+      <input id="logoAInput" placeholder="Logo Vlašim URL">
+      <input id="logoBInput" placeholder="Logo Benešov URL">
+      <input id="leagueLogoInput" placeholder="Logo Český hokej URL">
+      <button id="setLogos">Nastavit loga</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>🚨 Tresty</h3>
+    <div class="buttons">
+      <span style="width:70px;text-align:right;">VLA:</span>
+      <button id="addA2" class="penalty">+2</button>
+      <button id="addA4" class="penalty">+4</button>
+      <button id="addA5" class="penalty">+5</button>
+      <select id="removeASelect">
+        <option value="">Smazat trest...</option>
+        <option value="penA1">Trest 1</option>
+        <option value="penA2">Trest 2</option>
+      </select>
+      <button id="removeA">❌</button>
+    </div>
+    <div class="buttons">
+      <span style="width:70px;text-align:right;">BEN:</span>
+      <button id="addB2" class="penalty">+2</button>
+      <button id="addB4" class="penalty">+4</button>
+      <button id="addB5" class="penalty">+5</button>
+      <select id="removeBSelect">
+        <option value="">Smazat trest...</option>
+        <option value="penB1">Trest 1</option>
+        <option value="penB2">Trest 2</option>
+      </select>
+      <button id="removeB">❌</button>
+    </div>
   </div>
 </div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-  import { getDatabase, ref, update, onValue } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+import { getDatabase, ref, set, onValue, update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-  const app = initializeApp({
-    apiKey: "AIzaSyANQRaMe5QV3Onn3wkBvNx_AxgJA-81D-Q",
-    authDomain: "hcvlasim.firebaseapp.com",
-    databaseURL: "https://hcvlasim-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "hcvlasim"
+const firebaseConfig = {
+  apiKey: "AIzaSyANQRaMe5QV3Onn3wkBvNx_AxgJA-81D-Q",
+  authDomain: "hcvlasim.firebaseapp.com",
+  databaseURL: "https://hcvlasim-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "hcvlasim",
+  storageBucket: "hcvlasim.firebasestorage.app",
+  messagingSenderId: "384166386163",
+  appId: "1:384166386163:web:79d1ca50cfd973b6deda86",
+  measurementId: "G-WRE3MQ4ZEX"
+};
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const scoreboardRef = ref(db, "scoreboard");
+
+let seconds = 20 * 60;
+let startSeconds = 20 * 60;
+let running = false;
+let penalties = [];
+
+function fmt(s) {
+  const m = Math.floor(s / 60);
+  const sec = Math.floor(s % 60);
+  return `${String(m).padStart(2,"0")}:${String(sec).padStart(2,"0")}`;
+}
+
+function save() {
+  update(scoreboardRef, {
+    time: fmt(seconds),
+    period: document.getElementById("periodInput").value || "1. třetina",
+    teamA: document.getElementById("teamAInput").value || "VLA",
+    teamB: document.getElementById("teamBInput").value || "BEN",
+    logoA: document.getElementById("logoAInput").value || "",
+    logoB: document.getElementById("logoBInput").value || "",
+    leagueLogo: document.getElementById("leagueLogoInput").value || "",
+    penalties: penalties
   });
-  const db = getDatabase(app);
-  const sb = ref(db, "scoreboard/");
+}
 
-  let running = false;
+function tick() {
+  if (!running) return;
+  seconds--;
+  penalties.forEach(p => p.remaining--);
+  penalties = penalties.filter(p => p.remaining > 0);
+  save();
+  setTimeout(tick, 1000);
+}
 
-  const btn = document.getElementById("toggleBtn");
-  const getTime = () => document.getElementById("time").value;
+document.getElementById("applyStart").onclick = () => {
+  const val = document.getElementById("startTime").value;
+  if (!val.includes(":")) return;
+  const [m, s] = val.split(":").map(Number);
+  startSeconds = seconds = m * 60 + s;
+  save();
+};
 
-  btn.onclick = () => {
-    running = !running;
-    if (running) {
-      btn.textContent = "⏸️ Zastavit";
-      btn.classList.add("stop");
-    } else {
-      btn.textContent = "▶️ Spustit";
-      btn.classList.remove("stop");
-    }
-    update(sb, { running });
-  };
+document.getElementById("startStop").onclick = () => {
+  running = !running;
+  if (running) tick();
+  save();
+};
 
-  document.getElementById("reset").onclick = () => {
-    running = false;
-    btn.textContent = "▶️ Spustit";
-    btn.classList.remove("stop");
-    update(sb, { running: false, time: "20:00" });
-    document.getElementById("time").value = "20:00";
-  };
+document.getElementById("resetTime").onclick = () => {
+  running = false;
+  seconds = startSeconds;
+  save();
+};
 
-  document.getElementById("anim").onclick = () => {
-    update(sb, { animation: "toggle" });
-  };
+document.getElementById("setPeriod").onclick = save;
+document.getElementById("setTeams").onclick = save;
+document.getElementById("setLogos").onclick = save;
 
-  document.getElementById("time").addEventListener("input", () => {
-    update(sb, { time: getTime() });
-  });
+function addPenalty(team, secondsDur) {
+  penalties.push({ team, remaining: secondsDur });
+  save();
+}
+document.getElementById("addA2").onclick = () => addPenalty("A",120);
+document.getElementById("addA4").onclick = () => addPenalty("A",240);
+document.getElementById("addA5").onclick = () => addPenalty("A",300);
+document.getElementById("addB2").onclick = () => addPenalty("B",120);
+document.getElementById("addB4").onclick = () => addPenalty("B",240);
+document.getElementById("addB5").onclick = () => addPenalty("B",300);
 
-  onValue(sb, (snap) => {
-    const d = snap.val();
-    if (!d) return;
-    document.getElementById("time").value = d.time || "20:00";
-  });
+document.getElementById("removeA").onclick = () => {
+  penalties = penalties.filter(p => p.team !== "A");
+  save();
+};
+document.getElementById("removeB").onclick = () => {
+  penalties = penalties.filter(p => p.team !== "B");
+  save();
+};
+
+save();
 </script>
 </body>
 </html>
