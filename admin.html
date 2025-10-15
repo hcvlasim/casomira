@@ -1,187 +1,177 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin – Hokejová časomíra</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin – Hokejová časomíra</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-
-<!-- SCOREBOARD NÁHLED -->
-<div id="scoreboard">
-  <div class="league-logo"><img id="leagueLogo" src="https://piskejhokej.cz/img/logo.23de2cb2.png"></div>
-
-  <div class="info">
-    <div id="period">1. třetina</div>
-    <div id="time">20:00</div>
-  </div>
-
-  <div class="teams">
-    <div class="team"><img id="logoA" src="https://hcvlasim.cz/dist/images/logo.svg"><span id="nameA">VLA</span></div>
-    <div class="divider"></div>
-    <div class="team"><img id="logoB" src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTjCi29DjHS7XSaP4DKucgDaUxqEXpF57WweQ&s"><span id="nameB">BEN</span></div>
-  </div>
-
-  <div class="scores">
-    <div id="scoreA" class="score">0</div>
-    <div id="scoreB" class="score">0</div>
-  </div>
-
-  <div class="penalty-box">
-    <div class="penalty-row">
-      <div id="penA1" class="penalty hidden"></div>
-      <div id="penA2" class="penalty hidden"></div>
+  <div class="controls">
+    <div class="section">
+      <h3>⏱️ Časomíra</h3>
+      <div class="buttons">
+        <input id="startTime" placeholder="Startovní čas (např. 20:00)" style="width:150px;">
+        <button id="applyStart">Nastavit</button>
+        <button id="startStop">▶️ Spustit</button>
+        <button id="resetTime">🔁 Reset času</button>
+        <button id="toggle" class="toggle">🎬 Zobrazit / Skrýt</button>
+      </div>
     </div>
-    <div class="penalty-row">
-      <div id="penB1" class="penalty hidden"></div>
-      <div id="penB2" class="penalty hidden"></div>
-    </div>
-  </div>
-</div>
 
-<!-- OVLÁDACÍ PANEL -->
-<div class="controls">
-  <div class="section">
-    <h3>⏱️ Časomíra</h3>
-    <div class="buttons">
-      <input id="startTime" placeholder="Startovní čas (např. 20:00)" style="width:150px;">
-      <button id="applyStart">Nastavit</button>
-      <button id="startStop">▶️ Spustit</button>
-      <button id="resetTime">🔁 Reset času</button>
-      <button id="toggle" class="toggle">🎬 Zobrazit / Skrýt</button>
+    <div class="section">
+      <h3>🏒 Nastavení zápasu</h3>
+      <div class="buttons">
+        <input id="periodInput" placeholder="1. třetina">
+        <button id="setPeriod">Nastavit třetinu</button>
+      </div>
+      <div class="buttons">
+        <input id="teamAInput" placeholder="Tým 1 (VLA)">
+        <input id="teamBInput" placeholder="Tým 2 (BEN)">
+        <button id="setTeams">Nastavit týmy</button>
+      </div>
+      <div class="buttons">
+        <input id="logoAInput" placeholder="Logo Vlašim URL">
+        <input id="logoBInput" placeholder="Logo Benešov URL">
+        <input id="leagueLogoInput" placeholder="Logo Český hokej URL">
+        <button id="setLogos">Nastavit loga</button>
+      </div>
     </div>
-  </div>
 
-  <div class="section">
-    <h3>🏒 Nastavení zápasu</h3>
-    <div class="buttons">
-      <input id="periodInput" placeholder="1. třetina">
-      <button id="setPeriod">Nastavit třetinu</button>
-    </div>
-    <div class="buttons">
-      <input id="teamAInput" placeholder="Tým 1 (VLA)">
-      <input id="teamBInput" placeholder="Tým 2 (BEN)">
-      <button id="setTeams">Nastavit týmy</button>
-    </div>
-    <div class="buttons">
-      <input id="logoAInput" placeholder="Logo Vlašim URL">
-      <input id="logoBInput" placeholder="Logo Benešov URL">
-      <input id="leagueLogoInput" placeholder="Logo Český hokej URL">
-      <button id="setLogos">Nastavit loga</button>
+    <div class="section">
+      <h3>🚨 Tresty</h3>
+      <div class="buttons">
+        <span style="width:70px;text-align:right;">VLA:</span>
+        <button onclick="addPenalty('A',120)">+2</button>
+        <button onclick="addPenalty('A',240)">+4</button>
+        <button onclick="addPenalty('A',300)">+5</button>
+        <select id="removeASelect">
+          <option value="">Smazat trest...</option>
+          <option value="penA1">Trest 1</option>
+          <option value="penA2">Trest 2</option>
+        </select>
+        <button onclick="removePenalty('A')">❌</button>
+      </div>
+      <div class="buttons">
+        <span style="width:70px;text-align:right;">BEN:</span>
+        <button onclick="addPenalty('B',120)">+2</button>
+        <button onclick="addPenalty('B',240)">+4</button>
+        <button onclick="addPenalty('B',300)">+5</button>
+        <select id="removeBSelect">
+          <option value="">Smazat trest...</option>
+          <option value="penB1">Trest 1</option>
+          <option value="penB2">Trest 2</option>
+        </select>
+        <button onclick="removePenalty('B')">❌</button>
+      </div>
     </div>
   </div>
 
-  <div class="section">
-    <h3>🚨 Tresty</h3>
-    <div class="buttons">
-      <span style="width:70px;text-align:right;">VLA:</span>
-      <button onclick="addPenalty('A',120)">+2</button>
-      <button onclick="addPenalty('A',240)">+4</button>
-      <button onclick="addPenalty('A',300)">+5</button>
-      <select id="removeASelect"><option value="">Smazat trest...</option><option value="penA1">Trest 1</option><option value="penA2">Trest 2</option></select>
-      <button onclick="removePenalty('A')">❌</button>
-    </div>
-    <div class="buttons">
-      <span style="width:70px;text-align:right;">BEN:</span>
-      <button onclick="addPenalty('B',120)">+2</button>
-      <button onclick="addPenalty('B',240)">+4</button>
-      <button onclick="addPenalty('B',300)">+5</button>
-      <select id="removeBSelect"><option value="">Smazat trest...</option><option value="penB1">Trest 1</option><option value="penB2">Trest 2</option></select>
-      <button onclick="removePenalty('B')">❌</button>
-    </div>
-  </div>
-</div>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getDatabase, ref, update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-<!-- Firebase -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-import { getDatabase, ref, update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+    const firebaseConfig = {
+      apiKey: "AIzaSyANQRaMe5QV3Onn3wkBvNx_AxgJA-81D-Q",
+      authDomain: "hcvlasim.firebaseapp.com",
+      databaseURL: "https://hcvlasim-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "hcvlasim",
+      storageBucket: "hcvlasim.firebasestorage.app",
+      messagingSenderId: "384166386163",
+      appId: "1:384166386163:web:79d1ca50cfd973b6deda86",
+      measurementId: "G-WRE3MQ4ZEX"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const dbRef = ref(db, "scoreboard");
 
-const firebaseConfig = {
-  apiKey: "AIzaSyANQRaMe5QV3Onn3wkBvNx_AxgJA-81D-Q",
-  authDomain: "hcvlasim.firebaseapp.com",
-  databaseURL: "https://hcvlasim-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "hcvlasim",
-  storageBucket: "hcvlasim.firebasestorage.app",
-  messagingSenderId: "384166386163",
-  appId: "1:384166386163:web:79d1ca50cfd973b6deda86",
-  measurementId: "G-WRE3MQ4ZEX"
-};
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-const dbRef = ref(db, "scoreboard");
+    let running = false;
+    let seconds = 20 * 60;
+    let startSeconds = 20 * 60;
+    let lastTick = null;
+    let penalties = [];
+    let hidden = false;
 
-let running = false;
-let seconds = 1200; // 20:00
-let startSeconds = 1200;
-let lastTick = null;
-let penalties = [];
+    function fmt(s) {
+      const m = Math.floor(s / 60);
+      const sec = Math.floor(s % 60);
+      return `${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
+    }
+    function send(data) {
+      update(dbRef, data);
+    }
 
-function fmt(s){const m=Math.floor(s/60);const sec=Math.floor(s%60);return `${String(m).padStart(2,"0")}:${String(sec).padStart(2,"0")}`;}
-function send(data){update(dbRef,data);}
+    function loop(now) {
+      if (!lastTick) lastTick = now;
+      const delta = (now - lastTick) / 1000;
+      lastTick = now;
+      if (running) {
+        seconds -= delta;
+        if (seconds <= 0) seconds = 0;
+        penalties.forEach(p => {
+          p.remaining -= delta;
+          if (p.remaining <= 0) p.remaining = 0;
+          p.time = fmt(p.remaining);
+        });
+        send({ time: fmt(seconds), penalties });
+        requestAnimationFrame(loop);
+      }
+    }
 
-function loop(now){
-  if(!lastTick) lastTick=now;
-  const delta=(now-lastTick)/1000;
-  lastTick=now;
-  if(running){
-    seconds-=delta;
-    if(seconds<=0) seconds=0;
-    send({time:fmt(seconds),penalties:penalties.map(p=>({...p,time:fmt(p.remaining)}))});
-    penalties.forEach(p=>{p.remaining-=delta;if(p.remaining<=0)p.remaining=0;});
-    requestAnimationFrame(loop);
-  }
-}
+    document.getElementById("startStop").onclick = () => {
+      running = !running;
+      const btn = document.getElementById("startStop");
+      btn.textContent = running ? "⏸️ Zastavit" : "▶️ Spustit";
+      if (running) {
+        lastTick = null;
+        requestAnimationFrame(loop);
+      }
+    };
 
-document.getElementById("startStop").onclick=()=>{
-  running=!running;
-  document.getElementById("startStop").textContent=running?"⏸️ Zastavit":"▶️ Spustit";
-  if(running){lastTick=null;requestAnimationFrame(loop);}
-};
+    document.getElementById("resetTime").onclick = () => {
+      running = false;
+      seconds = startSeconds;
+      send({ time: fmt(seconds) });
+    };
 
-document.getElementById("resetTime").onclick=()=>{
-  running=false;
-  seconds=startSeconds;
-  send({time:fmt(seconds)});
-};
+    document.getElementById("applyStart").onclick = () => {
+      const val = document.getElementById("startTime").value;
+      if (!val || !val.includes(":")) return;
+      const [m, s] = val.split(":").map(Number);
+      startSeconds = seconds = m * 60 + s;
+      send({ time: fmt(seconds) });
+    };
 
-document.getElementById("applyStart").onclick=()=>{
-  const val=document.getElementById("startTime").value;
-  if(!val||!val.includes(":"))return;
-  const[m,s]=val.split(":").map(Number);
-  startSeconds=seconds=m*60+s;
-  send({time:fmt(seconds)});
-};
+    document.getElementById("toggle").onclick = () => {
+      hidden = !hidden;
+      send({ hidden });
+    };
 
-document.getElementById("setPeriod").onclick=()=>{
-  const val=document.getElementById("periodInput").value;
-  if(val)send({period:val});
-};
-document.getElementById("setTeams").onclick=()=>{
-  const a=document.getElementById("teamAInput").value;
-  const b=document.getElementById("teamBInput").value;
-  if(a||b)send({teamA:a,teamB:b});
-};
-document.getElementById("setLogos").onclick=()=>{
-  const a=document.getElementById("logoAInput").value;
-  const b=document.getElementById("logoBInput").value;
-  const c=document.getElementById("leagueLogoInput").value;
-  send({logoA:a,logoB:b,leagueLogo:c});
-};
+    document.getElementById("setPeriod").onclick = () => {
+      const val = document.getElementById("periodInput").value;
+      if (val) send({ period: val });
+    };
+    document.getElementById("setTeams").onclick = () => {
+      const a = document.getElementById("teamAInput").value;
+      const b = document.getElementById("teamBInput").value;
+      send({ teamA: a, teamB: b });
+    };
+    document.getElementById("setLogos").onclick = () => {
+      const a = document.getElementById("logoAInput").value;
+      const b = document.getElementById("logoBInput").value;
+      const c = document.getElementById("leagueLogoInput").value;
+      send({ logoA: a, logoB: b, leagueLogo: c });
+    };
 
-// ===== TRESTY =====
-window.addPenalty=(team,duration)=>{
-  const free=penalties.findIndex(p=>p.team===team&&p.remaining<=0);
-  const slot=(free!==-1?free:penalties.length);
-  penalties[slot]={team,remaining:duration,time:fmt(duration)};
-  send({penalties});
-};
+    window.addPenalty = (team, duration) => {
+      penalties.push({ team, remaining: duration, time: fmt(duration) });
+      send({ penalties });
+    };
 
-window.removePenalty=(team)=>{
-  penalties=penalties.filter(p=>p.team!==team);
-  send({penalties});
-};
-</script>
+    window.removePenalty = (team) => {
+      penalties = penalties.filter(p => p.team !== team);
+      send({ penalties });
+    };
+  </script>
 </body>
 </html>
