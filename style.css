@@ -19,6 +19,7 @@ body {
   overflow: hidden;
   box-shadow: 0 0 10px rgba(0,0,0,0.4);
   transform-origin: center;
+  transition: transform 0.6s ease, opacity 0.6s ease;
 }
 
 #scoreboard.hide {
@@ -26,6 +27,7 @@ body {
   opacity: 0;
 }
 
+/* Český hokej logo */
 .league-logo {
   background: white;
   display: flex;
@@ -119,18 +121,20 @@ body {
   border-bottom: none;
 }
 
-/* TRESTY */
+/* TRESTY – fixní pozice */
 .penalty-box {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   margin-left: 4px;
+  width: 170px; /* fixní šířka, scoreboard se NEPOSOUVÁ */
 }
 
 .penalty-row {
   display: flex;
   flex-direction: row;
   gap: 5px;
+  justify-content: flex-start;
 }
 
 .penalty {
@@ -144,10 +148,14 @@ body {
   align-items: center;
   justify-content: center;
   border-radius: 4px;
+  transition: opacity 0.3s ease;
+  opacity: 1;
+  visibility: visible;
 }
 
 .penalty.hidden {
-  display: none;
+  opacity: 0;
+  visibility: hidden; /* prostor zůstane rezervovaný */
 }
 
 /* OVLÁDACÍ PANEL */
@@ -203,10 +211,21 @@ button {
   transition: background 0.2s;
 }
 
-button:hover { background: #005fcc; }
-button.stop { background: #d32f2f; }
-button.toggle { background: #9c27b0; }
-button.penalty { background: #0066cc; }
+button:hover {
+  background: #005fcc;
+}
+
+button.stop {
+  background: #d32f2f;
+}
+
+button.toggle {
+  background: #9c27b0;
+}
+
+button.penalty {
+  background: #0066cc;
+}
 
 select {
   background: #111;
