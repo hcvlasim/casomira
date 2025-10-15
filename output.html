@@ -6,26 +6,27 @@
   <title>Output – Hokejová časomíra</title>
   <link rel="stylesheet" href="style.css" />
   <style>
-    #scoreboard {
-      transition: transform 0.6s ease, opacity 0.6s ease;
-    }
-    #scoreboard.hide {
-      transform: scale(0.8);
-      opacity: 0;
-    }
+    #scoreboard { transition: transform 0.6s ease, opacity 0.6s ease; }
+    #scoreboard.hide { transform: scale(0.8); opacity: 0; }
   </style>
 </head>
 <body>
   <div id="scoreboard">
-    <div class="league-logo"><img id="leagueLogo"></div>
+    <div class="league-logo"><img id="leagueLogo" alt=""></div>
     <div class="info"><div id="period"></div><div id="time"></div></div>
     <div class="teams">
-      <div class="team"><img id="logoA"><span id="nameA"></span></div>
+      <div class="team"><img id="logoA" alt=""><span id="nameA"></span></div>
       <div class="divider"></div>
-      <div class="team"><img id="logoB"><span id="nameB"></span></div>
+      <div class="team"><img id="logoB" alt=""><span id="nameB"></span></div>
     </div>
-    <div class="scores"><div id="scoreA" class="score">0</div><div id="scoreB" class="score">0</div></div>
-    <div class="penalty-box"><div class="penalty-row" id="penA"></div><div class="penalty-row" id="penB"></div></div>
+    <div class="scores">
+      <div id="scoreA" class="score">0</div>
+      <div id="scoreB" class="score">0</div>
+    </div>
+    <div class="penalty-box">
+      <div class="penalty-row" id="penA"></div>
+      <div class="penalty-row" id="penB"></div>
+    </div>
   </div>
 
   <script type="module">
@@ -47,11 +48,9 @@
     const refBoard = ref(db, "scoreboard");
 
     onValue(refBoard, (snap) => {
-      const d = snap.val();
-      if (!d) return;
-
+      const d = snap.val() || {};
       const board = document.getElementById("scoreboard");
-      board.classList.toggle("hide", d.hidden);
+      board.classList.toggle("hide", !!d.hidden);
 
       document.getElementById("time").textContent = d.time || "20:00";
       document.getElementById("period").textContent = d.period || "1. třetina";
@@ -61,19 +60,39 @@
       if (d.logoB) document.getElementById("logoB").src = d.logoB;
       if (d.leagueLogo) document.getElementById("leagueLogo").src = d.leagueLogo;
 
+      // skóre
+      document.getElementById("scoreA").textContent = (typeof d.scoreA === "number") ? d.scoreA : 0;
+      document.getElementById("scoreB").textContent = (typeof d.scoreB === "number") ? d.scoreB : 0;
+
+      // tresty – render s rezervovaným místem (neposouvá layout)
       const penA = document.getElementById("penA");
       const penB = document.getElementById("penB");
       penA.innerHTML = "";
       penB.innerHTML = "";
-
-      if (d.penalties) {
-        d.penalties.forEach(p => {
-          const el = document.createElement("div");
-          el.className = "penalty";
-          el.textContent = p.time;
-          if (p.team === "A") penA.appendChild(el);
-          else penB.appendChild(el);
-        });
+      if (Array.isArray(d.penalties)) {
+        const a = d.penalties.filter(p => p.team === "A" && p.time && p.time !== "00:00").slice(0,2);
+        const b = d.penalties.filter(p => p.team === "B" && p.time && p.time !== "00:00").slice(0,2);
+        const render = (arr, target) => {
+          // vykresli až 2 sloty, prázdné sloty necháme skryté (CSS visibility hidden drží místo)
+          for (let i = 0; i < 2; i++) {
+            const el = document.createElement("div");
+            el.className = "penalty" + (arr[i] ? "" : " hidden");
+            el.textContent = arr[i] ? arr[i].time : "";
+            target.appendChild(el);
+          }
+        };
+        render(a, penA);
+        render(b, penB);
+      } else {
+        // když nejsou data o trestech, stále vykresli prázdné sloty (drží šířku)
+        for (let i = 0; i < 2; i++) {
+          const ea = document.createElement("div");
+          ea.className = "penalty hidden";
+          penA.appendChild(ea);
+          const eb = document.createElement("div");
+          eb.className = "penalty hidden";
+          penB.appendChild(eb);
+        }
       }
     });
   </script>
